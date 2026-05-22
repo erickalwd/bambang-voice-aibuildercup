@@ -38,6 +38,7 @@ export default function VoiceAgent({
   // VAD state
   const silenceCounterRef = useRef<number>(0);
   const userIsSpeakingRef = useRef<boolean>(false);
+  const currentSourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
 
   const downsampleTo16k = (buffer: Float32Array, currentRate: number): Float32Array => {
     if (currentRate === 16000) return buffer;
@@ -106,6 +107,7 @@ export default function VoiceAgent({
     const source = audioContext.current.createBufferSource();
     source.buffer = audioBuffer;
     source.connect(audioContext.current.destination);
+    currentSourceNodeRef.current = source;
 
     const currentTime = audioContext.current.currentTime;
     const startTime = Math.max(currentTime, nextStartTimeRef.current);
@@ -140,9 +142,6 @@ export default function VoiceAgent({
       processor.onaudioprocess = (e) => {
         if (isMutedRef.current || !ws.current || ws.current.readyState !== WebSocket.OPEN) return;
         
-        // Don't send audio to Gemini if we are currently playing Gemini's audio (prevents echo loop)
-        if (agentStateRef.current === 'speaking') return;
-
         const inputData = e.inputBuffer.getChannelData(0);
         // Ensure audio is exactly 16000Hz before converting to PCM16
         const resampledData = downsampleTo16k(inputData, audioContext.current?.sampleRate || 16000);
@@ -208,6 +207,10 @@ export default function VoiceAgent({
             audioQueueRef.current = [];
             nextStartTimeRef.current = 0;
             isPlayingRef.current = false;
+            if (currentSourceNodeRef.current) {
+              try { currentSourceNodeRef.current.stop(); } catch(e){}
+              currentSourceNodeRef.current = null;
+            }
             setAgentState('listening');
           }
         } catch (e) {
