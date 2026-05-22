@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  pgvector:
+    image: pgvector/pgvector:pg16
+    container_name: bri-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: bri_admin
+      POSTGRES_PASSWORD: bri_password
+      POSTGRES_DB: bri_knowledge
+    volumes:
+      - pgvector_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgvector_data:

@@ -1,0 +1,56 @@
+[
+  {
+    "id": "prod_1",
+    "category": "products",
+    "title": "Tabungan BRI BritAma",
+    "content": "Tabungan BRI BritAma adalah produk tabungan yang memberikan beragam kemudahan dalam melakukan transaksi perbankan dengan didukung fasilitas e-banking dan sistem real-time online yang akan memungkinkan nasabah bertransaksi kapanpun dan dimanapun."
+  },
+  {
+    "id": "prod_2",
+    "category": "products",
+    "title": "Simpedes",
+    "content": "Simpedes adalah simpanan masyarakat dalam bentuk tabungan dengan mata uang Rupiah, yang dilayani di KC/KCP/BRI Unit/Kantor Kas/Teras BRI, yang penyetorannya dapat dilakukan setiap saat dan pengambilannya tidak dibatasi baik frekuensi maupun jumlahnya."
+  },
+  {
+    "id": "prod_3",
+    "category": "products",
+    "title": "Kredit Usaha Rakyat (KUR)",
+    "content": "Kredit Usaha Rakyat (KUR) adalah fasilitas pinjaman dari Bank BRI untuk Usaha Mikro, Kecil, dan Menengah (UMKM) yang layak namun belum memiliki agunan yang cukup."
+  },
+  {
+    "id": "faq_1",
+    "category": "faq",
+    "title": "Syarat Buka Rekening",
+    "content": "Syarat pembukaan rekening secara umum adalah identitas diri (KTP untuk WNI, Paspor & KIMS/KITAS/KITAP untuk WNA), NPWP (jika ada), dan setoran awal sesuai jenis tabungan."
+  },
+  {
+    "id": "faq_2",
+    "category": "faq",
+    "title": "Jam Operasional Cabang",
+    "content": "Jam operasional kantor cabang BRI pada umumnya adalah hari Senin hingga Jumat pukul 08.00 sampai 15.00 waktu setempat, kecuali pada hari libur nasional."
+  },
+  {
+    "id": "prod_4",
+    "category": "products",
+    "title": "BRImo",
+    "content": "BRImo adalah financial super app dari Bank BRI yang dirancang untuk memudahkan nasabah melakukan berbagai transaksi keuangan secara digital. Fitur utamanya termasuk buka rekening secara digital, transfer, pembayaran tagihan listrik/PDAM, pembelian pulsa, investasi, dan transaksi QRIS."
+  },
+  {
+    "id": "prod_5",
+    "category": "products",
+    "title": "BRI Ceria",
+    "content": "BRI Ceria adalah produk pinjaman digital berkonsep cicilan tanpa kartu kredit dari Bank BRI yang ditujukan untuk membiayai transaksi e-commerce, online travel site, atau ride sharing. Proses pengajuan cepat tanpa agunan dengan plafon hingga Rp 50 juta."
+  },
+  {
+    "id": "prod_6",
+    "category": "products",
+    "title": "QRIS BRI",
+    "content": "QRIS BRI adalah standarisasi pembayaran menggunakan kode QR yang memudahkan transaksi pembayaran non-tunai. Dengan QRIS, merchant dapat menerima pembayaran dari berbagai aplikasi dompet digital atau mobile banking dengan praktis dan aman."
+  },
+  {
+    "id": "prod_7",
+    "category": "products",
+    "title": "Tabungan Haji BRI",
+    "content": "Tabungan Haji BRI adalah produk tabungan untuk mempersiapkan biaya ibadah haji. Bebas biaya administrasi bulanan, gratis asuransi, dan terkoneksi langsung dengan SISKOHAT Kemenag. Setoran awal ringan mulai Rp 50.000."
+  }
+]

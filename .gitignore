@@ -1,0 +1,13 @@
+# Node.js
+node_modules/
+.npm/
+
+# Python
+venv/
+__pycache__/
+*.pyc
+debug_*.wav
+
+# Env
+.env
+.DS_Store
