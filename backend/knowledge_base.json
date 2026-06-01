@@ -52,5 +52,41 @@
     "category": "products",
     "title": "Tabungan Haji BRI",
     "content": "Tabungan Haji BRI adalah produk tabungan untuk mempersiapkan biaya ibadah haji. Bebas biaya administrasi bulanan, gratis asuransi, dan terkoneksi langsung dengan SISKOHAT Kemenag. Setoran awal ringan mulai Rp 50.000."
+  },
+  {
+    "id": "info_1",
+    "category": "info",
+    "title": "Sejarah dan Profil BRI",
+    "content": "Bank Rakyat Indonesia (BRI) didirikan pada 16 Desember 1895 di Purwokerto, Jawa Tengah, oleh Raden Bei Aria Wirjaatmadja. Awalnya bertujuan membantu masyarakat pedesaan. BRI merupakan salah satu bank tertua dan terbesar di Indonesia yang fokus pada pemberdayaan UMKM."
+  },
+  {
+    "id": "info_2",
+    "category": "info",
+    "title": "Visi dan Misi BRI",
+    "content": "Visi BRI adalah menjadi The Most Valuable Banking Group di Asia Tenggara dan Champion of Financial Inclusion. Misi BRI meliputi pelayanan terbaik untuk segmen mikro, kecil, dan menengah, pelayanan prima berbasis teknologi, serta memberi manfaat bagi seluruh stakeholders dengan tata kelola yang baik."
+  },
+  {
+    "id": "prod_8",
+    "category": "products",
+    "title": "Kartu Kredit BRI",
+    "content": "BRI menawarkan berbagai jenis kartu kredit: BRI Easy Card (cashback tarik tunai dan swalayan), BRI Touch (untuk milenial dan e-commerce), BRI Platinum (keluarga mapan dan pengusaha), BRI World Access (traveling internasional), dan BRI Infinite (nasabah Prioritas). Syarat pengajuan umumnya minimal usia 21 tahun dan penghasilan Rp3.000.000/bulan."
+  },
+  {
+    "id": "prod_9",
+    "category": "products",
+    "title": "KPR BRI",
+    "content": "KPR BRI menawarkan pembiayaan properti dengan bunga menarik, mulai dari fixed 2,50% untuk 1 tahun pertama. Tenor kredit bisa mencapai hingga 20 tahun dengan DP mulai dari 10%. KPR ini dapat digunakan untuk beli rumah baru, bekas, apartemen, atau take over. Terdapat juga KPR Subsidi FLPP bagi masyarakat berpenghasilan rendah dengan bunga 5%."
+  },
+  {
+    "id": "prod_10",
+    "category": "products",
+    "title": "Asuransi BRI Life",
+    "content": "BRI Life menyediakan asuransi jiwa, kesehatan, dan investasi. Produk unggulannya antara lain: Arunika (perlindungan komprehensif keluarga), BRILife Inspira (asuransi whole life hingga 99 tahun), dan AM KKM Plus (asuransi mikro). Keunggulannya adalah premi terjangkau, fleksibilitas pembayaran, dan jaringan terluas sinergi dengan Bank BRI."
+  },
+  {
+    "id": "prod_11",
+    "category": "products",
+    "title": "Agen BRILink",
+    "content": "Agen BRILink adalah layanan perbankan tanpa kantor yang dikelola oleh nasabah BRI. Melalui Agen BRILink, masyarakat bisa melakukan transaksi seperti tarik/setor tunai, transfer antar bank, bayar tagihan (PLN, PDAM, BPJS), hingga pembelian pulsa tanpa harus ke bank. Ini adalah perpanjangan tangan BRI untuk inklusi keuangan."
   }
 ]

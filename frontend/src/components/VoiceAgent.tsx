@@ -39,6 +39,9 @@ export default function VoiceAgent({
   const silenceCounterRef = useRef<number>(0);
   const userIsSpeakingRef = useRef<boolean>(false);
   const currentSourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
+  const activeSourcesRef = useRef<AudioBufferSourceNode[]>([]);
+  const vadRef = useRef<any>(null);
+  const preSpeechBufferRef = useRef<Float32Array[]>([]);
 
   const downsampleTo16k = (buffer: Float32Array, currentRate: number): Float32Array => {
     if (currentRate === 16000) return buffer;
@@ -91,37 +94,51 @@ export default function VoiceAgent({
     return float32Array;
   };
 
-  const playAudioQueue = () => {
-    if (!audioContext.current || audioQueueRef.current.length === 0) {
-      isPlayingRef.current = false;
-      // Gunakan debounce untuk mencegah status berkedip saat jeda antar chunk audio
-      setTimeout(() => {
-        if (!isPlayingRef.current && agentStateRef.current === 'speaking') {
-          setAgentState('listening');
-        }
-      }, 500);
-      return;
-    }
-
+  const scheduleAudio = () => {
+    if (!audioContext.current) return;
+    
     setAgentState('speaking');
     isPlayingRef.current = true;
-    const pcmData = audioQueueRef.current.shift()!;
-    const audioBuffer = audioContext.current.createBuffer(1, pcmData.length, 24000); // Gemini Live outputs 24kHz PCM
-    audioBuffer.getChannelData(0).set(pcmData);
 
-    const source = audioContext.current.createBufferSource();
-    source.buffer = audioBuffer;
-    source.connect(audioContext.current.destination);
-    currentSourceNodeRef.current = source;
+    while (audioQueueRef.current.length > 0) {
+      const pcmData = audioQueueRef.current.shift()!;
+      // Prevent scheduling empty buffers (e.g. 0 length)
+      if (pcmData.length === 0) continue;
 
-    const currentTime = audioContext.current.currentTime;
-    const startTime = Math.max(currentTime, nextStartTimeRef.current);
-    source.start(startTime);
-    nextStartTimeRef.current = startTime + audioBuffer.duration;
+      const audioBuffer = audioContext.current.createBuffer(1, pcmData.length, 24000); // Gemini Live outputs 24kHz PCM
+      audioBuffer.getChannelData(0).set(pcmData);
 
-    source.onended = () => {
-      playAudioQueue();
-    };
+      const source = audioContext.current.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioContext.current.destination);
+      currentSourceNodeRef.current = source;
+      activeSourcesRef.current.push(source);
+
+      const currentTime = audioContext.current.currentTime;
+      // Revert to 50ms buffer to avoid massive delay penalties on slow networks
+      if (nextStartTimeRef.current < currentTime) {
+         nextStartTimeRef.current = currentTime + 0.05;
+      }
+      
+      const startTime = nextStartTimeRef.current;
+      source.start(startTime);
+      nextStartTimeRef.current = startTime + audioBuffer.duration;
+
+      source.onended = () => {
+        // Clean up from active sources
+        activeSourcesRef.current = activeSourcesRef.current.filter(s => s !== source);
+        // If the playback time has reached the end of the last scheduled chunk, we are done
+        if (audioContext.current && audioContext.current.currentTime >= nextStartTimeRef.current - 0.05) {
+          isPlayingRef.current = false;
+          // Use an 1000ms debounce before reverting to "listening" state to absorb any network lag spikes without UI flicker
+          setTimeout(() => {
+            if (!isPlayingRef.current && agentStateRef.current === 'speaking') {
+              setAgentState('listening');
+            }
+          }, 1000);
+        }
+      };
+    }
   };
 
   const startSession = async () => {
@@ -135,6 +152,42 @@ export default function VoiceAgent({
       } });
       
       mediaStream.current = stream;
+      
+      // Initialize Silero VAD (Dynamic CDN Load to completely bypass Next.js Turbopack bugs)
+      try {
+        const loadScript = (src: string) => new Promise((resolve, reject) => {
+          if (document.querySelector(`script[src="${src}"]`)) return resolve(true);
+          const script = document.createElement('script');
+          script.src = src;
+          script.onload = resolve;
+          script.onerror = reject;
+          document.body.appendChild(script);
+        });
+
+        await loadScript("https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/ort.js");
+        await loadScript("https://cdn.jsdelivr.net/npm/@ricky0123/vad-web@0.0.19/dist/bundle.min.js");
+
+        vadRef.current = await (window as any).vad.MicVAD.new({
+          stream: stream,
+          redemptionFrames: 5, 
+          minSpeechFrames: 4, // Force user to speak for at least ~4 frames to trigger, filters out short acoustic echo blips!
+          positiveSpeechThreshold: 0.65, // Balanced threshold, not too hard to trigger but ignores background hum
+          negativeSpeechThreshold: 0.4, 
+          onSpeechStart: () => {
+            userIsSpeakingRef.current = true;
+          },
+          onSpeechEnd: () => {
+            userIsSpeakingRef.current = false;
+          },
+          onVADMisfire: () => {
+            userIsSpeakingRef.current = false;
+          }
+        });
+        vadRef.current.start();
+      } catch (err) {
+        console.error("Failed to initialize Silero VAD:", err);
+      }
+
       const actx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
       if (actx.state === 'suspended') {
         await actx.resume();
@@ -142,7 +195,7 @@ export default function VoiceAgent({
       audioContext.current = actx;
 
       const source = actx.createMediaStreamSource(stream);
-      const processor = actx.createScriptProcessor(4096, 1, 1);
+      const processor = actx.createScriptProcessor(2048, 1, 1); // Reduced from 4096 to lower audio chunking delay
       
       processor.onaudioprocess = (e) => {
         if (isMutedRef.current || !ws.current || ws.current.readyState !== WebSocket.OPEN) return;
@@ -151,30 +204,40 @@ export default function VoiceAgent({
         // Ensure audio is exactly 16000Hz before converting to PCM16
         const resampledData = downsampleTo16k(inputData, audioContext.current?.sampleRate || 16000);
         
-        // Simple RMS-based VAD
-        let sumSq = 0;
-        for (let i = 0; i < resampledData.length; i++) {
-          sumSq += resampledData[i] * resampledData[i];
-        }
-        const rms = Math.sqrt(sumSq / resampledData.length);
-        
-        if (rms > 0.02) { // Speech threshold
-          silenceCounterRef.current = 0;
-          userIsSpeakingRef.current = true;
+        // DYNAMIC STREAMING WITH SILERO VAD GATE (NOISE GATE APPROACH)
+        // Gemini's internal VAD expects a continuous stream. If we cut it off, it hangs.
+        // Instead, we send pure silence when the user is not speaking.
+        if (userIsSpeakingRef.current) {
+           // Flush pre-speech buffer
+           if (preSpeechBufferRef.current.length > 0) {
+              preSpeechBufferRef.current.forEach(chunk => {
+                 const bufferedB64 = float32ToInt16Base64(chunk);
+                 ws.current?.send(JSON.stringify({ type: "realtime_input", data: bufferedB64 }));
+              });
+              preSpeechBufferRef.current = [];
+           }
+           
+           // Send live frame
+           const b64 = float32ToInt16Base64(resampledData);
+           ws.current.send(JSON.stringify({
+             type: "realtime_input",
+             data: b64
+           }));
         } else {
-          silenceCounterRef.current++;
-          // ~1.5 seconds of silence (about 6 chunks at 16kHz if 4096 frames/chunk = 256ms)
-          if (userIsSpeakingRef.current && silenceCounterRef.current > 6) {
-            userIsSpeakingRef.current = false;
-            ws.current.send(JSON.stringify({ type: "end_of_speech" }));
-          }
-        }
+           // Maintain rolling buffer for the next speech onset
+           preSpeechBufferRef.current.push(resampledData);
+           if (preSpeechBufferRef.current.length > 3) {
+              preSpeechBufferRef.current.shift();
+           }
 
-        const b64 = float32ToInt16Base64(resampledData);
-        ws.current.send(JSON.stringify({
-          type: "realtime_input",
-          data: b64
-        }));
+           // Send pure silence to Gemini so its internal VAD knows we stopped speaking
+           const silence = new Float32Array(resampledData.length);
+           const silenceB64 = float32ToInt16Base64(silence);
+           ws.current.send(JSON.stringify({
+             type: "realtime_input",
+             data: silenceB64
+           }));
+        }
       };
 
       source.connect(processor);
@@ -205,17 +268,18 @@ export default function VoiceAgent({
             audioQueueRef.current.push(pcmFloat32);
             if (!isPlayingRef.current) {
               nextStartTimeRef.current = audioContext.current?.currentTime || 0;
-              playAudioQueue();
             }
+            scheduleAudio();
           } else if (data.type === 'interrupt') {
             // Clear queue on interrupt
             audioQueueRef.current = [];
             nextStartTimeRef.current = 0;
             isPlayingRef.current = false;
-            if (currentSourceNodeRef.current) {
-              try { currentSourceNodeRef.current.stop(); } catch(e){}
-              currentSourceNodeRef.current = null;
-            }
+            activeSourcesRef.current.forEach(source => {
+              try { source.stop(); } catch(e){}
+            });
+            activeSourcesRef.current = [];
+            currentSourceNodeRef.current = null;
             setAgentState('listening');
           }
         } catch (e) {
@@ -240,6 +304,10 @@ export default function VoiceAgent({
 
   const stopSession = () => {
     try {
+        if (vadRef.current) {
+            try { vadRef.current.pause(); } catch(e){}
+            vadRef.current = null;
+        }
         if (scriptProcessor.current) {
             scriptProcessor.current.disconnect();
             scriptProcessor.current = null;
@@ -283,60 +351,74 @@ export default function VoiceAgent({
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 bg-white/80 backdrop-blur-md rounded-3xl shadow-xl w-full max-w-sm border border-slate-100 transition-all">
-      <div className="relative mb-8 mt-4 flex items-center justify-center">
-        {agentState === 'speaking' && (
+    <>
+      <div className="flex flex-col items-center justify-center w-full relative h-[320px]">
+        {/* Dynamic Glowing Background Behind Orb */}
+        {agentState !== 'idle' && (
           <>
-            <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.8, 0.5] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} className="absolute w-32 h-32 rounded-full bg-blue-300 blur-xl" />
-            <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.6, 0.3] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0.2, ease: "easeInOut" }} className="absolute w-24 h-24 rounded-full bg-blue-400 blur-lg" />
+            <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.3, 0.15] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }} className="absolute w-72 h-72 rounded-full bg-primary blur-[50px] mix-blend-multiply" />
+            <motion.div animate={{ scale: [1, 1.4, 1], opacity: [0.1, 0.25, 0.1] }} transition={{ repeat: Infinity, duration: 2.5, delay: 0.3, ease: "easeInOut" }} className="absolute w-64 h-64 rounded-full bg-accent blur-[40px] mix-blend-multiply" />
           </>
         )}
-        {agentState === 'listening' && (
-          <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.4, 0.2] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} className="absolute w-32 h-32 rounded-full bg-green-200 blur-xl" />
-        )}
-        
-        <div className={`relative w-28 h-28 rounded-full flex flex-col items-center justify-center shadow-lg border-4 z-10 bg-gradient-to-br ${
-          agentState === 'idle' ? 'from-slate-100 to-slate-200 border-slate-100 text-slate-400' :
-          agentState === 'speaking' ? 'from-blue-500 to-primary border-blue-200 text-white shadow-blue-500/50' :
-          'from-green-400 to-emerald-500 border-green-200 text-white shadow-green-500/40'
-        }`}>
-          <span className="text-white/60 text-sm font-medium">Status</span>
-          <span className="text-white font-bold">{connected ? 'Connected' : 'Offline'}</span>
-        </div>
+
+        {/* The Sci-Fi HUD Orb */}
+        <motion.div 
+          onClick={!connected ? startSession : stopSession}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className={`relative w-72 h-72 rounded-full flex flex-col items-center justify-center overflow-hidden z-10 cursor-pointer transition-all duration-700 shadow-[0_0_50px_-15px_rgba(8,87,195,0.3)] ${
+            agentState === 'idle' ? 'bg-white' : 'bg-slate-50'
+          }`}
+        >
+          {/* Glass Layer */}
+          <div className="absolute inset-0 bg-white/40 backdrop-blur-2xl rounded-full border border-white/80" />
+          
+          {/* HUD Rings */}
+          <div className="absolute inset-2 border-[1px] border-primary/20 rounded-full" />
+          <div className="absolute inset-4 border-[2px] border-dashed border-secondary/40 rounded-full animate-[spin_12s_linear_infinite]" />
+          <div className="absolute inset-8 border-[1.5px] border-dotted border-accent/60 rounded-full animate-[spin_18s_linear_infinite_reverse]" />
+
+          {/* Inner mesh/wave effect */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent opacity-100" />
+          
+          {/* Audio Wave lines (simulated HUD core) */}
+          {agentState !== 'idle' && (
+            <div className="absolute inset-12 flex items-center justify-center opacity-80">
+              <motion.div animate={{ scale: agentState === 'speaking' ? [1, 1.4, 1] : [1, 1.05, 1], opacity: agentState === 'speaking' ? [0.6, 1, 0.6] : 0.4 }} transition={{ repeat: Infinity, duration: agentState === 'speaking' ? 0.8 : 2 }} className="w-full h-full rounded-full bg-gradient-to-tr from-primary/30 to-accent/30 blur-xl" />
+            </div>
+          )}
+
+          <div className="z-10 flex flex-col items-center text-center">
+             {agentState === 'idle' ? (
+                <>
+                  <span className="text-primary/70 text-xs tracking-widest uppercase mb-1 font-semibold">Sobat BRI</span>
+                  <span className="text-slate-800 font-extrabold text-2xl tracking-tight">Tap to Start</span>
+                </>
+             ) : (
+                <>
+                  <span className="text-primary/70 text-xs tracking-widest uppercase mb-2 font-semibold">
+                    {agentState === 'speaking' ? 'Bambang' : 'Listening'}
+                  </span>
+                  <span className="text-slate-800 font-extrabold text-2xl tracking-tight mb-2">
+                    {agentState === 'speaking' ? 'Berbicara...' : '...'}
+                  </span>
+                  <span className="text-slate-400 text-[10px] uppercase font-bold tracking-widest mt-2 border border-slate-200 px-3 py-1 rounded-full bg-white/50">
+                    Tap to Stop
+                  </span>
+                </>
+             )}
+          </div>
+        </motion.div>
       </div>
 
+      {/* Bot Transcript */}
       {botTranscript && (
-        <div className="mt-4 p-3 bg-slate-100 rounded-lg border border-slate-200 text-slate-700 text-sm italic h-32 overflow-y-auto w-full mb-4">
-          Bambang: "{botTranscript}"
+        <div className="w-full px-6 mt-4 z-20 relative">
+          <div className="bg-white/70 backdrop-blur-md border border-white shadow-sm rounded-2xl p-4 text-sm text-slate-700 italic h-20 overflow-y-auto font-medium text-center">
+            "{botTranscript}"
+          </div>
         </div>
       )}
-
-      <div className="text-center mb-8 h-10 flex flex-col justify-center">
-        <h3 className="text-xl font-bold text-slate-800 mb-1">
-          {agentState === 'idle' ? 'Voice Assistant' : 
-           agentState === 'speaking' ? 'Bambang Berbicara...' :
-           isMuted ? 'Mikrofon Dimatikan' : 'Mendengarkan (Bicara sekarang)'}
-        </h3>
-      </div>
-
-      <div className="w-full flex flex-col gap-3">
-        {!connected ? (
-          <button onClick={startSession} className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl py-4 font-semibold shadow-md transition-all">
-            Mulai Sesi
-          </button>
-        ) : (
-          <>
-            <button onClick={toggleMute} className={`w-full py-3 rounded-2xl font-semibold transition-all border ${
-                isMuted ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
-              }`}>
-              {isMuted ? 'Nyalakan Mikrofon' : 'Mute Mikrofon'}
-            </button>
-            <button onClick={stopSession} className="w-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-2xl py-3 font-semibold transition-all">
-              Akhiri Sesi
-            </button>
-          </>
-        )}
-      </div>
-    </div>
+    </>
   );
 }

@@ -97,15 +97,38 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
 
       case 'idle':
       default:
+        const defaultCategories = [
+          { title: 'Tabungan', count: 'Rp 4.500.000', icon: <Building2 className="text-primary w-5 h-5" />, badgeBg: 'bg-primary/10', badgeText: 'text-primary' },
+          { title: 'Tagihan', count: '2 Jatuh Tempo', icon: <CreditCard className="text-secondary w-5 h-5" />, badgeBg: 'bg-red-100', badgeText: 'text-red-600', alert: true },
+          { title: 'Investasi', count: 'Portofolio Stabil', icon: <Send className="text-accent-foreground w-5 h-5" />, badgeBg: 'bg-accent/30', badgeText: 'text-accent-foreground' },
+          { title: 'Promo', count: '12 Baru', icon: <HelpCircle className="text-green-600 w-5 h-5" />, badgeBg: 'bg-green-100', badgeText: 'text-green-700' },
+        ];
         return (
-          <div className="h-full flex flex-col items-center justify-center text-center opacity-70 animate-in fade-in duration-1000">
-            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-6">
-              <HelpCircle className="w-10 h-10 text-slate-400" />
+          <div className="w-full flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500 pb-4 relative z-10">
+            <h3 className="text-slate-800 font-bold mb-3 px-1 text-sm tracking-wide">Layanan Utama</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {defaultCategories.map((c, i) => (
+                <div key={i} className="bg-white/50 backdrop-blur-xl border border-white shadow-[0_8px_24px_-8px_rgba(8,87,195,0.15)] rounded-[20px] p-4 flex flex-col hover:bg-white/70 hover:shadow-[0_16px_32px_-12px_rgba(8,87,195,0.25)] transition-all cursor-pointer relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  <div className="flex justify-between items-start mb-3 relative z-10">
+                    <div className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center border border-slate-100/50">
+                      {c.icon}
+                    </div>
+                    {c.alert && <div className="px-2 py-0.5 bg-red-500 text-white text-[9px] font-bold tracking-widest rounded-full animate-pulse shadow-md shadow-red-500/20">!</div>}
+                  </div>
+                  <h4 className="text-slate-800 font-bold text-sm mb-2 relative z-10">{c.title}</h4>
+                  <div className="flex items-center justify-between mt-auto pt-1 relative z-10">
+                    <div className={`text-[10px] px-2.5 py-1 rounded-lg font-bold tracking-wide border border-white/60 shadow-sm ${c.badgeBg} ${c.badgeText}`}>
+                      {c.count}
+                    </div>
+                    <div className="text-slate-400 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-sm font-bold">
+                      ↗
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <h2 className="text-2xl font-semibold text-slate-700 mb-2">Pusat Informasi</h2>
-            <p className="text-slate-500 max-w-sm">
-              Silakan berbicara dengan asisten virtual kami. Informasi yang relevan akan muncul di sini.
-            </p>
           </div>
         );
     }
@@ -113,26 +136,7 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
 
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Dev toolbar to simulate states */}
-      <div className="flex gap-2 mb-6 pb-4 border-b border-slate-200">
-        <span className="text-xs font-semibold text-slate-400 uppercase mr-2 mt-1">Simulate:</span>
-        {['idle', 'products', 'lead_form'].map((t) => (
-          <button 
-            key={t}
-            onClick={() => {
-              if (t === 'lead_form') setSubmitted(false); // reset form
-              // In real app, we wouldn't change this from inside but just a hack for MVP dev view
-              state.type = t as any; 
-              // React state hack for dev demo, normally comes from props
-              window.dispatchEvent(new CustomEvent('demo-state-change', { detail: t }));
-            }}
-            className={`text-xs px-3 py-1 rounded-full border ${state.type === t ? 'bg-primary text-white border-primary' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'}`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
-      
+
       {/* Content wrapper */}
       <div className="flex-1 flex flex-col justify-center">
         {renderContent()}
