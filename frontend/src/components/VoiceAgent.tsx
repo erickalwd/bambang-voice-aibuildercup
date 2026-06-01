@@ -94,7 +94,12 @@ export default function VoiceAgent({
   const playAudioQueue = () => {
     if (!audioContext.current || audioQueueRef.current.length === 0) {
       isPlayingRef.current = false;
-      if (agentStateRef.current === 'speaking') setAgentState('listening');
+      // Gunakan debounce untuk mencegah status berkedip saat jeda antar chunk audio
+      setTimeout(() => {
+        if (!isPlayingRef.current && agentStateRef.current === 'speaking') {
+          setAgentState('listening');
+        }
+      }, 500);
       return;
     }
 
@@ -164,7 +169,7 @@ export default function VoiceAgent({
             ws.current.send(JSON.stringify({ type: "end_of_speech" }));
           }
         }
-        
+
         const b64 = float32ToInt16Base64(resampledData);
         ws.current.send(JSON.stringify({
           type: "realtime_input",

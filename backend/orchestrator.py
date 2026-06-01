@@ -97,6 +97,13 @@ TUGAS PENTING ANDA TERKAIT TAMPILAN (UI):
 4. Gunakan `search_knowledge_base` jika Anda ditanya tentang detail produk Bank BRI."""
             config = types.LiveConnectConfig(
                 response_modalities=["AUDIO"],
+                speech_config=types.SpeechConfig(
+                    voice_config=types.VoiceConfig(
+                        prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                            voice_name="Puck"
+                        )
+                    )
+                ),
                 system_instruction=types.Content(parts=[types.Part.from_text(text=system_instruction_text)]),
                 tools=[{"function_declarations": [search_kb_tool, set_ui_state_tool, fill_form_field_tool]}]
             )
@@ -106,8 +113,8 @@ TUGAS PENTING ANDA TERKAIT TAMPILAN (UI):
                 print(f"Gemini Live Session connected for {session_id}")
                 
                 # Send Initial Greeting
-                # We just say "Halo!" so the bot responds naturally as Bambang.
-                await gemini_session.send(input="Halo!", end_of_turn=True)
+                # We instruct Gemini to give a longer, formal greeting as Bambang.
+                await gemini_session.send(input="Halo! Tolong sapa saya dengan ramah dan lengkap, perkenalkan dirimu sebagai Bambang dari Bank BRI, dan tanyakan apa yang bisa dibantu hari ini.", end_of_turn=True)
                 
                 t1 = asyncio.create_task(self.forward_client_to_gemini(session_id))
                 t2 = asyncio.create_task(self.forward_gemini_to_client(session_id))
