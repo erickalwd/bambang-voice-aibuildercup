@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, MicOff, Loader2, Volume2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Mic, MicOff, Square } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type AgentState = 'idle' | 'listening' | 'speaking';
 
@@ -14,13 +14,13 @@ export default function VoiceAgent({
   const [agentState, setAgentStateState] = useState<AgentState>('idle');
   const agentStateRef = useRef<AgentState>('idle');
   const setAgentState = (s: AgentState) => {
-      agentStateRef.current = s;
-      setAgentStateState(s);
+    agentStateRef.current = s;
+    setAgentStateState(s);
   };
   const [connected, setConnected] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const isMutedRef = useRef<boolean>(false);
-  
+
   const ws = useRef<WebSocket | null>(null);
   const [botTranscript, setBotTranscript] = useState<string>('');
 
@@ -28,13 +28,13 @@ export default function VoiceAgent({
   const audioContext = useRef<AudioContext | null>(null);
   const mediaStream = useRef<MediaStream | null>(null);
   const scriptProcessor = useRef<ScriptProcessorNode | null>(null);
-  
+
   // Audio Playback
   const audioQueueRef = useRef<Float32Array[]>([]);
   const isPlayingRef = useRef<boolean>(false);
   const nextStartTimeRef = useRef<number>(0);
   const [errorMsg, setErrorMsg] = useState('');
-  
+
   // VAD state
   const silenceCounterRef = useRef<number>(0);
   const userIsSpeakingRef = useRef<boolean>(false);
@@ -96,16 +96,14 @@ export default function VoiceAgent({
 
   const scheduleAudio = () => {
     if (!audioContext.current) return;
-    
     setAgentState('speaking');
     isPlayingRef.current = true;
 
     while (audioQueueRef.current.length > 0) {
       const pcmData = audioQueueRef.current.shift()!;
-      // Prevent scheduling empty buffers (e.g. 0 length)
       if (pcmData.length === 0) continue;
 
-      const audioBuffer = audioContext.current.createBuffer(1, pcmData.length, 24000); // Gemini Live outputs 24kHz PCM
+      const audioBuffer = audioContext.current.createBuffer(1, pcmData.length, 24000);
       audioBuffer.getChannelData(0).set(pcmData);
 
       const source = audioContext.current.createBufferSource();
@@ -115,22 +113,18 @@ export default function VoiceAgent({
       activeSourcesRef.current.push(source);
 
       const currentTime = audioContext.current.currentTime;
-      // Revert to 50ms buffer to avoid massive delay penalties on slow networks
       if (nextStartTimeRef.current < currentTime) {
-         nextStartTimeRef.current = currentTime + 0.05;
+        nextStartTimeRef.current = currentTime + 0.05;
       }
-      
+
       const startTime = nextStartTimeRef.current;
       source.start(startTime);
       nextStartTimeRef.current = startTime + audioBuffer.duration;
 
       source.onended = () => {
-        // Clean up from active sources
         activeSourcesRef.current = activeSourcesRef.current.filter(s => s !== source);
-        // If the playback time has reached the end of the last scheduled chunk, we are done
         if (audioContext.current && audioContext.current.currentTime >= nextStartTimeRef.current - 0.05) {
           isPlayingRef.current = false;
-          // Use an 1000ms debounce before reverting to "listening" state to absorb any network lag spikes without UI flicker
           setTimeout(() => {
             if (!isPlayingRef.current && agentStateRef.current === 'speaking') {
               setAgentState('listening');
@@ -143,17 +137,11 @@ export default function VoiceAgent({
 
   const startSession = async () => {
     try {
-      // Request mic permissions and open context
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: {
-        sampleRate: 16000,
-        channelCount: 1,
-        echoCancellation: true,
-        noiseSuppression: true,
-      } });
-      
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true },
+      });
       mediaStream.current = stream;
-      
-      // Initialize Silero VAD (Dynamic CDN Load to completely bypass Next.js Turbopack bugs)
+
       try {
         const loadScript = (src: string) => new Promise((resolve, reject) => {
           if (document.querySelector(`script[src="${src}"]`)) return resolve(true);
@@ -163,25 +151,18 @@ export default function VoiceAgent({
           script.onerror = reject;
           document.body.appendChild(script);
         });
-
         await loadScript("https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/ort.js");
         await loadScript("https://cdn.jsdelivr.net/npm/@ricky0123/vad-web@0.0.19/dist/bundle.min.js");
 
         vadRef.current = await (window as any).vad.MicVAD.new({
-          stream: stream,
-          redemptionFrames: 5, 
-          minSpeechFrames: 4, // Force user to speak for at least ~4 frames to trigger, filters out short acoustic echo blips!
-          positiveSpeechThreshold: 0.65, // Balanced threshold, not too hard to trigger but ignores background hum
-          negativeSpeechThreshold: 0.4, 
-          onSpeechStart: () => {
-            userIsSpeakingRef.current = true;
-          },
-          onSpeechEnd: () => {
-            userIsSpeakingRef.current = false;
-          },
-          onVADMisfire: () => {
-            userIsSpeakingRef.current = false;
-          }
+          stream,
+          redemptionFrames: 5,
+          minSpeechFrames: 4,
+          positiveSpeechThreshold: 0.65,
+          negativeSpeechThreshold: 0.4,
+          onSpeechStart: () => { userIsSpeakingRef.current = true; },
+          onSpeechEnd: () => { userIsSpeakingRef.current = false; },
+          onVADMisfire: () => { userIsSpeakingRef.current = false; },
         });
         vadRef.current.start();
       } catch (err) {
@@ -189,54 +170,32 @@ export default function VoiceAgent({
       }
 
       const actx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
-      if (actx.state === 'suspended') {
-        await actx.resume();
-      }
+      if (actx.state === 'suspended') await actx.resume();
       audioContext.current = actx;
 
       const source = actx.createMediaStreamSource(stream);
-      const processor = actx.createScriptProcessor(2048, 1, 1); // Reduced from 4096 to lower audio chunking delay
-      
+      const processor = actx.createScriptProcessor(2048, 1, 1);
+
       processor.onaudioprocess = (e) => {
         if (isMutedRef.current || !ws.current || ws.current.readyState !== WebSocket.OPEN) return;
-        
         const inputData = e.inputBuffer.getChannelData(0);
-        // Ensure audio is exactly 16000Hz before converting to PCM16
         const resampledData = downsampleTo16k(inputData, audioContext.current?.sampleRate || 16000);
-        
-        // DYNAMIC STREAMING WITH SILERO VAD GATE (NOISE GATE APPROACH)
-        // Gemini's internal VAD expects a continuous stream. If we cut it off, it hangs.
-        // Instead, we send pure silence when the user is not speaking.
-        if (userIsSpeakingRef.current) {
-           // Flush pre-speech buffer
-           if (preSpeechBufferRef.current.length > 0) {
-              preSpeechBufferRef.current.forEach(chunk => {
-                 const bufferedB64 = float32ToInt16Base64(chunk);
-                 ws.current?.send(JSON.stringify({ type: "realtime_input", data: bufferedB64 }));
-              });
-              preSpeechBufferRef.current = [];
-           }
-           
-           // Send live frame
-           const b64 = float32ToInt16Base64(resampledData);
-           ws.current.send(JSON.stringify({
-             type: "realtime_input",
-             data: b64
-           }));
-        } else {
-           // Maintain rolling buffer for the next speech onset
-           preSpeechBufferRef.current.push(resampledData);
-           if (preSpeechBufferRef.current.length > 3) {
-              preSpeechBufferRef.current.shift();
-           }
 
-           // Send pure silence to Gemini so its internal VAD knows we stopped speaking
-           const silence = new Float32Array(resampledData.length);
-           const silenceB64 = float32ToInt16Base64(silence);
-           ws.current.send(JSON.stringify({
-             type: "realtime_input",
-             data: silenceB64
-           }));
+        if (userIsSpeakingRef.current) {
+          if (preSpeechBufferRef.current.length > 0) {
+            preSpeechBufferRef.current.forEach(chunk => {
+              const bufferedB64 = float32ToInt16Base64(chunk);
+              ws.current?.send(JSON.stringify({ type: "realtime_input", data: bufferedB64 }));
+            });
+            preSpeechBufferRef.current = [];
+          }
+          const b64 = float32ToInt16Base64(resampledData);
+          ws.current.send(JSON.stringify({ type: "realtime_input", data: b64 }));
+        } else {
+          preSpeechBufferRef.current.push(resampledData);
+          if (preSpeechBufferRef.current.length > 3) preSpeechBufferRef.current.shift();
+          const silence = new Float32Array(resampledData.length);
+          ws.current.send(JSON.stringify({ type: "realtime_input", data: float32ToInt16Base64(silence) }));
         }
       };
 
@@ -244,14 +203,8 @@ export default function VoiceAgent({
       processor.connect(actx.destination);
       scriptProcessor.current = processor;
 
-      // Open WebSocket
       ws.current = new WebSocket('ws://localhost:8000/ws/voice');
-      
-      ws.current.onopen = () => {
-        setConnected(true);
-        setAgentState('listening');
-      };
-
+      ws.current.onopen = () => { setConnected(true); setAgentState('listening'); };
       ws.current.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
@@ -263,39 +216,24 @@ export default function VoiceAgent({
           } else if (data.type === 'bot_text') {
             setBotTranscript(prev => prev ? prev + " " + data.text : data.text);
           } else if (data.type === 'audio') {
-            // Receive Native Audio PCM
             const pcmFloat32 = base64ToFloat32PCM(data.data);
             audioQueueRef.current.push(pcmFloat32);
-            if (!isPlayingRef.current) {
-              nextStartTimeRef.current = audioContext.current?.currentTime || 0;
-            }
+            if (!isPlayingRef.current) nextStartTimeRef.current = audioContext.current?.currentTime || 0;
             scheduleAudio();
           } else if (data.type === 'interrupt') {
-            // Clear queue on interrupt
             audioQueueRef.current = [];
             nextStartTimeRef.current = 0;
             isPlayingRef.current = false;
-            activeSourcesRef.current.forEach(source => {
-              try { source.stop(); } catch(e){}
-            });
+            activeSourcesRef.current.forEach(source => { try { source.stop(); } catch(e){} });
             activeSourcesRef.current = [];
             currentSourceNodeRef.current = null;
             setAgentState('listening');
           }
-        } catch (e) {
-          console.error("Error parsing WS message", e);
-        }
+        } catch (e) { console.error("Error parsing WS message", e); }
       };
+      ws.current.onclose = () => { console.log("WebSocket Closed"); stopSession(); };
+      ws.current.onerror = (e) => { console.error("WebSocket Error", e); };
 
-      ws.current.onclose = () => {
-        console.log("WebSocket Closed by server/network");
-        stopSession();
-      };
-      
-      ws.current.onerror = (e) => {
-        console.error("WebSocket Error", e);
-      };
-      
     } catch (e) {
       console.error("Session start error:", e);
       alert("Gagal mengakses mikrofon atau server.");
@@ -304,33 +242,17 @@ export default function VoiceAgent({
 
   const stopSession = () => {
     try {
-        if (vadRef.current) {
-            try { vadRef.current.pause(); } catch(e){}
-            vadRef.current = null;
-        }
-        if (scriptProcessor.current) {
-            scriptProcessor.current.disconnect();
-            scriptProcessor.current = null;
-        }
-        if (mediaStream.current) {
-            mediaStream.current.getTracks().forEach(track => track.stop());
-            mediaStream.current = null;
-        }
-        if (audioContext.current) {
-            audioContext.current.close();
-            audioContext.current = null;
-        }
-        if (ws.current) {
-          ws.current.close();
-          ws.current = null;
-        }
-    } catch (err) {
-        console.error("Error during stopSession:", err);
-    } finally {
-        setConnected(false);
-        setAgentState('idle');
-        audioQueueRef.current = [];
-        isPlayingRef.current = false;
+      if (vadRef.current) { try { vadRef.current.pause(); } catch(e){} vadRef.current = null; }
+      if (scriptProcessor.current) { scriptProcessor.current.disconnect(); scriptProcessor.current = null; }
+      if (mediaStream.current) { mediaStream.current.getTracks().forEach(t => t.stop()); mediaStream.current = null; }
+      if (audioContext.current) { audioContext.current.close(); audioContext.current = null; }
+      if (ws.current) { ws.current.close(); ws.current = null; }
+    } catch (err) { console.error("Error during stopSession:", err); }
+    finally {
+      setConnected(false);
+      setAgentState('idle');
+      audioQueueRef.current = [];
+      isPlayingRef.current = false;
     }
   };
 
@@ -338,87 +260,322 @@ export default function VoiceAgent({
     isMutedRef.current = !isMutedRef.current;
     setIsMuted(isMutedRef.current);
     if (mediaStream.current) {
-      mediaStream.current.getAudioTracks().forEach(track => {
-        track.enabled = !isMutedRef.current;
-      });
+      mediaStream.current.getAudioTracks().forEach(t => { t.enabled = !isMutedRef.current; });
     }
   };
 
-  useEffect(() => {
-    return () => {
-      stopSession();
-    };
-  }, []);
+  useEffect(() => { return () => { stopSession(); }; }, []);
+
+  /* ─── Color map per state ─────────────────────────────── */
+  const stateConfig = {
+    idle: {
+      aura1: 'rgba(184, 169, 245, 0.35)',
+      aura2: 'rgba(245, 184, 213, 0.28)',
+      orbBg: 'linear-gradient(145deg, rgba(255,255,255,0.55) 0%, rgba(220,210,255,0.45) 100%)',
+      ring: '#b8a9f5',
+      label: 'Sobat BRI',
+      title: 'Mulai Bicara',
+      sub: 'Tap untuk memulai',
+    },
+    listening: {
+      aura1: 'rgba(110, 168, 247, 0.4)',
+      aura2: 'rgba(163, 245, 216, 0.3)',
+      orbBg: 'linear-gradient(145deg, rgba(200,225,255,0.55) 0%, rgba(163,245,216,0.35) 100%)',
+      ring: '#6ea8f7',
+      label: 'Mendengarkan',
+      title: '...',
+      sub: 'Tap untuk berhenti',
+    },
+    speaking: {
+      aura1: 'rgba(245, 184, 213, 0.45)',
+      aura2: 'rgba(245, 232, 163, 0.35)',
+      orbBg: 'linear-gradient(145deg, rgba(255,210,230,0.55) 0%, rgba(255,240,200,0.4) 100%)',
+      ring: '#f5b8d5',
+      label: 'Bambang',
+      title: 'Berbicara',
+      sub: 'Tap untuk berhenti',
+    },
+  };
+
+  const cfg = stateConfig[agentState];
+
+  /* ─── Wave bars for speaking state ───────────────────── */
+  const waveBars = Array.from({ length: 7 });
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center w-full relative h-[320px]">
-        {/* Dynamic Glowing Background Behind Orb */}
-        {agentState !== 'idle' && (
-          <>
-            <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.3, 0.15] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }} className="absolute w-72 h-72 rounded-full bg-primary blur-[50px] mix-blend-multiply" />
-            <motion.div animate={{ scale: [1, 1.4, 1], opacity: [0.1, 0.25, 0.1] }} transition={{ repeat: Infinity, duration: 2.5, delay: 0.3, ease: "easeInOut" }} className="absolute w-64 h-64 rounded-full bg-accent blur-[40px] mix-blend-multiply" />
-          </>
-        )}
+      {/* ── Voice Orb Area ─────────────────────────────── */}
+      <div className="flex flex-col items-center w-full" style={{ paddingTop: 8, paddingBottom: 4 }}>
 
-        {/* The Sci-Fi HUD Orb */}
-        <motion.div 
-          onClick={!connected ? startSession : stopSession}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className={`relative w-72 h-72 rounded-full flex flex-col items-center justify-center overflow-hidden z-10 cursor-pointer transition-all duration-700 shadow-[0_0_50px_-15px_rgba(8,87,195,0.3)] ${
-            agentState === 'idle' ? 'bg-white' : 'bg-slate-50'
-          }`}
-        >
-          {/* Glass Layer */}
-          <div className="absolute inset-0 bg-white/40 backdrop-blur-2xl rounded-full border border-white/80" />
-          
-          {/* HUD Rings */}
-          <div className="absolute inset-2 border-[1px] border-primary/20 rounded-full" />
-          <div className="absolute inset-4 border-[2px] border-dashed border-secondary/40 rounded-full animate-[spin_12s_linear_infinite]" />
-          <div className="absolute inset-8 border-[1.5px] border-dotted border-accent/60 rounded-full animate-[spin_18s_linear_infinite_reverse]" />
+        {/* Ambient aura blobs */}
+        <div className="relative flex items-center justify-center" style={{ width: 300, height: 300 }}>
+          <motion.div
+            animate={{ scale: [1, 1.18, 1], opacity: [0.5, 0.8, 0.5] }}
+            transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut' }}
+            style={{
+              position: 'absolute',
+              width: 260,
+              height: 260,
+              borderRadius: '50%',
+              background: cfg.aura1,
+              filter: 'blur(38px)',
+            }}
+          />
+          <motion.div
+            animate={{ scale: [1, 1.25, 1], opacity: [0.4, 0.65, 0.4] }}
+            transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut', delay: 0.6 }}
+            style={{
+              position: 'absolute',
+              width: 210,
+              height: 210,
+              borderRadius: '50%',
+              background: cfg.aura2,
+              filter: 'blur(28px)',
+            }}
+          />
 
-          {/* Inner mesh/wave effect */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent opacity-100" />
-          
-          {/* Audio Wave lines (simulated HUD core) */}
-          {agentState !== 'idle' && (
-            <div className="absolute inset-12 flex items-center justify-center opacity-80">
-              <motion.div animate={{ scale: agentState === 'speaking' ? [1, 1.4, 1] : [1, 1.05, 1], opacity: agentState === 'speaking' ? [0.6, 1, 0.6] : 0.4 }} transition={{ repeat: Infinity, duration: agentState === 'speaking' ? 0.8 : 2 }} className="w-full h-full rounded-full bg-gradient-to-tr from-primary/30 to-accent/30 blur-xl" />
-            </div>
+          {/* Main Orb Button */}
+          <motion.button
+            id="voice-orb-btn"
+            onClick={!connected ? startSession : stopSession}
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.93 }}
+            className={`glass-orb ${agentState === 'listening' ? 'listening-ring' : ''}`}
+            style={{
+              position: 'relative',
+              width: 210,
+              height: 210,
+              borderRadius: '50%',
+              /* tint the glass orb with state colour very lightly */
+              background: agentState === 'idle'
+                ? 'rgba(255,255,255,0.22)'
+                : agentState === 'listening'
+                  ? 'rgba(180,215,255,0.2)'
+                  : 'rgba(255,210,230,0.2)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              overflow: 'hidden',
+              zIndex: 10,
+            }}
+          >
+            {/* Curved top highlight — mimics liquid glass sphere */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0, left: 0, right: 0,
+                height: '46%',
+                borderRadius: '50% 50% 0 0 / 42% 42% 0 0',
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.52) 0%, rgba(255,255,255,0.06) 100%)',
+                pointerEvents: 'none',
+              }}
+            />
+            {/* Moving shimmer band */}
+
+
+            {/* Spinning ring decoration */}
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 14, ease: 'linear' }}
+              style={{
+                position: 'absolute',
+                inset: 10,
+                borderRadius: '50%',
+                border: `1.5px dashed ${cfg.ring}55`,
+              }}
+            />
+
+            {/* Content */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={agentState}
+                initial={{ opacity: 0, scale: 0.85, y: 6 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: -4 }}
+                transition={{ duration: 0.3 }}
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, zIndex: 2 }}
+              >
+                {agentState === 'speaking' ? (
+                  /* Wave bars */
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 36 }}>
+                    {waveBars.map((_, i) => (
+                      <motion.div
+                        key={i}
+                        animate={{ scaleY: [0.3, 1, 0.3] }}
+                        transition={{
+                          repeat: Infinity,
+                          duration: 0.7 + i * 0.08,
+                          delay: i * 0.09,
+                          ease: 'easeInOut',
+                        }}
+                        style={{
+                          width: 4,
+                          height: 32,
+                          borderRadius: 4,
+                          background: `linear-gradient(180deg, #f5b8d5, #b8a9f5)`,
+                          transformOrigin: 'bottom',
+                        }}
+                      />
+                    ))}
+                  </div>
+                ) : agentState === 'listening' ? (
+                  <motion.div
+                    animate={{ scale: [1, 1.15, 1], opacity: [0.8, 1, 0.8] }}
+                    transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
+                  >
+                    <Mic size={36} color="#6ea8f7" strokeWidth={1.8} />
+                  </motion.div>
+                ) : (
+                  <Mic size={36} color="#b8a9f5" strokeWidth={1.6} />
+                )}
+
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    letterSpacing: '0.13em',
+                    textTransform: 'uppercase',
+                    color: agentState === 'idle' ? '#8b7ec8' : agentState === 'listening' ? '#4a8ed4' : '#c07090',
+                    marginTop: 2,
+                  }}
+                >
+                  {cfg.label}
+                </span>
+              </motion.div>
+            </AnimatePresence>
+          </motion.button>
+        </div>
+
+        {/* Status pill below orb */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={agentState + '-pill'}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.35 }}
+            style={{
+              marginTop: 12,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background: 'rgba(255,255,255,0.5)',
+              backdropFilter: 'blur(14px)',
+              WebkitBackdropFilter: 'blur(14px)',
+              border: '1.5px solid rgba(255,255,255,0.8)',
+              borderRadius: 32,
+              padding: '7px 18px',
+              boxShadow: '0 4px 16px rgba(100,120,180,0.12)',
+            }}
+          >
+            {agentState !== 'idle' && (
+              <motion.span
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ repeat: Infinity, duration: 1.4 }}
+                style={{
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: agentState === 'listening' ? '#6ea8f7' : '#f5b8d5',
+                  display: 'inline-block',
+                }}
+              />
+            )}
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                color: 'rgba(26,26,46,0.6)',
+                letterSpacing: '0.04em',
+              }}
+            >
+              {cfg.sub}
+            </span>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Mute button — only when connected */}
+        <AnimatePresence>
+          {connected && (
+            <motion.button
+              id="mute-btn"
+              initial={{ opacity: 0, y: 8, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 4, scale: 0.9 }}
+              onClick={toggleMute}
+              style={{
+                marginTop: 10,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                background: isMuted ? 'rgba(245,184,213,0.4)' : 'rgba(255,255,255,0.38)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                border: '1.5px solid rgba(255,255,255,0.7)',
+                borderRadius: 24,
+                padding: '6px 16px',
+                fontSize: 12,
+                fontWeight: 600,
+                color: isMuted ? '#c07090' : 'rgba(26,26,46,0.5)',
+                cursor: 'pointer',
+                boxShadow: '0 2px 10px rgba(100,120,180,0.1)',
+              }}
+            >
+              {isMuted ? <MicOff size={14} /> : <Mic size={14} />}
+              {isMuted ? 'Mic Off' : 'Mic On'}
+            </motion.button>
           )}
-
-          <div className="z-10 flex flex-col items-center text-center">
-             {agentState === 'idle' ? (
-                <>
-                  <span className="text-primary/70 text-xs tracking-widest uppercase mb-1 font-semibold">Sobat BRI</span>
-                  <span className="text-slate-800 font-extrabold text-2xl tracking-tight">Tap to Start</span>
-                </>
-             ) : (
-                <>
-                  <span className="text-primary/70 text-xs tracking-widest uppercase mb-2 font-semibold">
-                    {agentState === 'speaking' ? 'Bambang' : 'Listening'}
-                  </span>
-                  <span className="text-slate-800 font-extrabold text-2xl tracking-tight mb-2">
-                    {agentState === 'speaking' ? 'Berbicara...' : '...'}
-                  </span>
-                  <span className="text-slate-400 text-[10px] uppercase font-bold tracking-widest mt-2 border border-slate-200 px-3 py-1 rounded-full bg-white/50">
-                    Tap to Stop
-                  </span>
-                </>
-             )}
-          </div>
-        </motion.div>
+        </AnimatePresence>
       </div>
 
-      {/* Bot Transcript */}
-      {botTranscript && (
-        <div className="w-full px-6 mt-4 z-20 relative">
-          <div className="bg-white/70 backdrop-blur-md border border-white shadow-sm rounded-2xl p-4 text-sm text-slate-700 italic h-20 overflow-y-auto font-medium text-center">
-            "{botTranscript}"
-          </div>
-        </div>
-      )}
+      {/* ── Bot Transcript Card ─────────────────────────── */}
+      <AnimatePresence>
+        {botTranscript && (
+          <motion.div
+            initial={{ opacity: 0, y: 14, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full px-6 mt-2 mb-1"
+          >
+            <div
+              style={{
+                background: 'rgba(255,255,255,0.52)',
+                backdropFilter: 'blur(20px) saturate(160%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+                border: '1.5px solid rgba(255,255,255,0.78)',
+                borderRadius: 24,
+                padding: '14px 18px',
+                boxShadow: '0 6px 28px rgba(100,120,180,0.14), inset 0 1px 0 rgba(255,255,255,0.85)',
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  color: '#b8a9f5',
+                  marginBottom: 5,
+                }}
+              >
+                🤖 Bambang berkata
+              </p>
+              <p
+                style={{
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: '#2d2a4a',
+                  lineHeight: 1.55,
+                  fontStyle: 'italic',
+                }}
+              >
+                "{botTranscript}"
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

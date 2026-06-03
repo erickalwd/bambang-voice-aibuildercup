@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Building2, HelpCircle, Send } from 'lucide-react';
+import { CreditCard, Building2, HelpCircle, Send, Wallet, Zap, ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface DynamicPanelProps {
   state: {
@@ -10,9 +11,25 @@ interface DynamicPanelProps {
   };
 }
 
+/* ── Bento card palette ───────────────────────────────────── */
+const bentoColors = [
+  { bg: 'linear-gradient(135deg, #c8e6ff 0%, #a8d4ff 100%)', accent: '#5b9ee8', text: '#1a3a5c' },
+  { bg: 'linear-gradient(135deg, #e4d9ff 0%, #cbbcf5 100%)', accent: '#9278dc', text: '#2d1f5c' },
+  { bg: 'linear-gradient(135deg, #ffe4f0 0%, #f5c5d8 100%)', accent: '#d46090', text: '#5c1f3a' },
+  { bg: 'linear-gradient(135deg, #fff8d0 0%, #f5e4a0 100%)', accent: '#c4980a', text: '#5c3a00' },
+  { bg: 'linear-gradient(135deg, #d0ffe8 0%, #a8f0cc 100%)', accent: '#28b870', text: '#0c4028' },
+  { bg: 'linear-gradient(135deg, #ffe4d0 0%, #f5c4a0 100%)', accent: '#e07840', text: '#5c2800' },
+];
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 16, scale: 0.96 },
+  visible: (i: number) => ({
+    opacity: 1, y: 0, scale: 1,
+    transition: { delay: i * 0.07, duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
+
 export default function DynamicPanel({ state }: DynamicPanelProps) {
-  
-  // Controlled Form State
   const [formData, setFormData] = useState({ name: '', phone: '', email: '' });
   const [submitted, setSubmitted] = useState(false);
 
@@ -27,118 +44,353 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
 
   const renderContent = () => {
     switch (state.type) {
-      case 'products':
-        const defaultProducts = [
-          { title: 'BRImo', desc: 'Financial super app untuk transaksi digital', icon: <Send /> },
-          { title: 'BRI Ceria', desc: 'Pinjaman paylater tanpa agunan & kartu kredit', icon: <CreditCard /> },
-          { title: 'Tabungan Haji BRI', desc: 'Persiapkan biaya ibadah haji Anda', icon: <Building2 /> },
-          { title: 'Kredit Usaha Rakyat (KUR)', desc: 'Solusi permodalan untuk UMKM', icon: <CreditCard /> },
-          { title: 'Tabungan BRI BritAma', desc: 'Tabungan dengan beragam kemudahan transaksi', icon: <CreditCard /> },
-          { title: 'QRIS BRI', desc: 'Solusi pembayaran non-tunai yang praktis', icon: <Send /> },
-        ];
-        const displayProducts = state.data && state.data.length > 0 ? state.data : defaultProducts;
-        
-        return (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-2xl font-bold text-primary mb-6">Produk Pilihan BRI</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {displayProducts.map((p: any, i: number) => (
-                <div key={i} className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="text-secondary mb-3">{p.icon || <Building2 />}</div>
-                  <h3 className="font-semibold text-lg text-slate-800">{p.title}</h3>
-                  <p className="text-sm text-slate-500 mt-2">{p.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      
-      case 'lead_form':
-        return (
-          <div className="animate-in zoom-in-95 duration-500 max-w-md mx-auto w-full">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-primary">Tinggalkan Kontak Anda</h2>
-              <p className="text-slate-500 mt-2">Tim kami akan segera menghubungi Anda untuk informasi lebih lanjut.</p>
-            </div>
-            
-            {submitted ? (
-              <div className="bg-green-50 border border-green-200 text-green-700 p-6 rounded-2xl text-center">
-                <h3 className="font-bold text-xl mb-2">Terima Kasih!</h3>
-                <p>Data Anda telah berhasil kami terima.</p>
-              </div>
-            ) : (
-              <form 
-                className="space-y-4"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setSubmitted(true);
-                }}
-              >
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap</label>
-                  <input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required type="text" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all bg-white" placeholder="Masukkan nama Anda" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Nomor Telepon</label>
-                  <input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} required type="tel" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all bg-white" placeholder="08xxxxxxxxxx" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                  <input value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} required type="email" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all bg-white" placeholder="email@contoh.com" />
-                </div>
-                
-                <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-4 rounded-xl shadow-lg transition-all flex justify-center items-center gap-2 mt-6">
-                  <Send className="w-5 h-5" /> Kirim Data
-                </button>
-              </form>
-            )}
-          </div>
-        );
 
-      case 'idle':
-      default:
-        const defaultCategories = [
-          { title: 'Tabungan', count: 'Rp 4.500.000', icon: <Building2 className="text-primary w-5 h-5" />, badgeBg: 'bg-primary/10', badgeText: 'text-primary' },
-          { title: 'Tagihan', count: '2 Jatuh Tempo', icon: <CreditCard className="text-secondary w-5 h-5" />, badgeBg: 'bg-red-100', badgeText: 'text-red-600', alert: true },
-          { title: 'Investasi', count: 'Portofolio Stabil', icon: <Send className="text-accent-foreground w-5 h-5" />, badgeBg: 'bg-accent/30', badgeText: 'text-accent-foreground' },
-          { title: 'Promo', count: '12 Baru', icon: <HelpCircle className="text-green-600 w-5 h-5" />, badgeBg: 'bg-green-100', badgeText: 'text-green-700' },
+      /* ── PRODUCTS ─────────────────────────────────────── */
+      case 'products': {
+        const defaultProducts = [
+          { title: 'BRImo', desc: 'Super app keuangan digital', icon: <Zap size={22} /> },
+          { title: 'BRI Ceria', desc: 'Paylater & kartu kredit', icon: <CreditCard size={22} /> },
+          { title: 'Tabungan Haji', desc: 'Siapkan biaya ibadah haji', icon: <Building2 size={22} /> },
+          { title: 'KUR BRI', desc: 'Modal usaha untuk UMKM', icon: <Wallet size={22} /> },
+          { title: 'BritAma', desc: 'Tabungan serba mudah', icon: <CreditCard size={22} /> },
+          { title: 'QRIS BRI', desc: 'Bayar nontunai praktis', icon: <Send size={22} /> },
         ];
+        const products = state.data?.length > 0 ? state.data : defaultProducts;
+
         return (
-          <div className="w-full flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500 pb-4 relative z-10">
-            <h3 className="text-slate-800 font-bold mb-3 px-1 text-sm tracking-wide">Layanan Utama</h3>
+          <motion.div initial="hidden" animate="visible">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(26,26,46,0.42)', marginBottom: 2 }}>
+                  Temukan
+                </p>
+                <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em' }}>
+                  Produk BRI
+                </h2>
+              </div>
+              <Sparkles size={20} style={{ color: '#b8a9f5' }} />
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              {defaultCategories.map((c, i) => (
-                <div key={i} className="bg-white/50 backdrop-blur-xl border border-white shadow-[0_8px_24px_-8px_rgba(8,87,195,0.15)] rounded-[20px] p-4 flex flex-col hover:bg-white/70 hover:shadow-[0_16px_32px_-12px_rgba(8,87,195,0.25)] transition-all cursor-pointer relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
-                  <div className="flex justify-between items-start mb-3 relative z-10">
-                    <div className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center border border-slate-100/50">
-                      {c.icon}
+              {products.map((p: any, i: number) => {
+                const col = bentoColors[i % bentoColors.length];
+                return (
+                  <motion.div
+                    key={i}
+                    custom={i}
+                    variants={cardVariants}
+                    whileHover={{ y: -4, scale: 1.03 }}
+                    style={{
+                      background: col.bg.replace(/rgba\((\d+),(\d+),(\d+),([\.\d]+)\)/g, (m: string, r: string, g: string, b: string, a: string) => `rgba(${r},${g},${b},${Math.min(parseFloat(a), 0.72)})`),
+                      borderRadius: 22,
+                      padding: '16px 14px',
+                      border: '1.5px solid rgba(255,255,255,0.72)',
+                      backdropFilter: 'blur(32px) saturate(200%)',
+                      WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+                      boxShadow: '0 4px 20px rgba(80,100,160,0.12), inset 0 1.5px 0 rgba(255,255,255,0.85)',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {/* Glass top highlight */}
+                    <div style={{
+                      position: 'absolute', top: 0, left: 0, right: 0, height: '42%',
+                      background: 'linear-gradient(180deg, rgba(255,255,255,0.42) 0%, transparent 100%)',
+                      borderRadius: '22px 22px 0 0', pointerEvents: 'none',
+                    }} />
+                    {/* Shimmer sweep */}
+
+                    <div style={{ color: col.accent, marginBottom: 10 }}>{p.icon || <Building2 size={22} />}</div>
+                    <h3 style={{ fontSize: 14, fontWeight: 800, color: col.text, marginBottom: 4, letterSpacing: '-0.01em' }}>{p.title}</h3>
+                    <p style={{ fontSize: 11, color: col.text, opacity: 0.65, lineHeight: 1.45 }}>{p.desc}</p>
+                    <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
+                      <ArrowRight size={14} style={{ color: col.accent }} />
                     </div>
-                    {c.alert && <div className="px-2 py-0.5 bg-red-500 text-white text-[9px] font-bold tracking-widest rounded-full animate-pulse shadow-md shadow-red-500/20">!</div>}
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        );
+      }
+
+      /* ── LEAD FORM ────────────────────────────────────── */
+      case 'lead_form': {
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            style={{ maxWidth: 400, margin: '0 auto', width: '100%' }}
+          >
+            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: 18,
+                background: 'linear-gradient(135deg, #e4d9ff, #cbbcf5)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 12px',
+                border: '1.5px solid rgba(255,255,255,0.8)',
+                boxShadow: '0 4px 16px rgba(184,169,245,0.3)',
+              }}>
+                <Send size={22} style={{ color: '#9278dc' }} />
+              </div>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', marginBottom: 6 }}>
+                Tinggalkan Kontak
+              </h2>
+              <p style={{ fontSize: 13, color: 'rgba(26,26,46,0.5)', lineHeight: 1.55 }}>
+                Tim kami akan segera menghubungi Anda.
+              </p>
+            </div>
+
+            <AnimatePresence mode="wait">
+              {submitted ? (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  style={{
+                    background: 'linear-gradient(135deg, #d0ffe8, #a8f0cc)',
+                    border: '1.5px solid rgba(255,255,255,0.8)',
+                    borderRadius: 24,
+                    padding: '28px 20px',
+                    textAlign: 'center',
+                    boxShadow: '0 6px 24px rgba(40,184,112,0.18)',
+                  }}
+                >
+                  <CheckCircle2 size={40} style={{ color: '#28b870', margin: '0 auto 10px' }} />
+                  <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0c4028', marginBottom: 6 }}>Terima Kasih!</h3>
+                  <p style={{ fontSize: 13, color: 'rgba(12,64,40,0.65)' }}>Data Anda telah berhasil kami terima.</p>
+                </motion.div>
+              ) : (
+                <motion.form
+                  key="form"
+                  onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
+                >
+                  {[
+                    { field: 'name', label: 'Nama Lengkap', type: 'text', placeholder: 'Masukkan nama Anda' },
+                    { field: 'phone', label: 'Nomor Telepon', type: 'tel', placeholder: '08xxxxxxxxxx' },
+                    { field: 'email', label: 'Email', type: 'email', placeholder: 'email@contoh.com' },
+                  ].map(({ field, label, type, placeholder }) => (
+                    <div key={field}>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'rgba(26,26,46,0.6)', marginBottom: 5, letterSpacing: '0.04em' }}>
+                        {label}
+                      </label>
+                      <input
+                        className="glass-input"
+                        value={(formData as any)[field]}
+                        onChange={e => setFormData({ ...formData, [field]: e.target.value })}
+                        required
+                        type={type}
+                        placeholder={placeholder}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          borderRadius: 14,
+                          border: '1.5px solid rgba(255,255,255,0.75)',
+                          background: 'rgba(255,255,255,0.52)',
+                          fontSize: 14,
+                          color: '#1a1a2e',
+                          outline: 'none',
+                          boxShadow: '0 2px 10px rgba(100,120,180,0.08)',
+                          transition: 'all 0.2s',
+                        }}
+                      />
+                    </div>
+                  ))}
+
+                  <motion.button
+                    type="submit"
+                    whileHover={{ scale: 1.02, y: -1 }}
+                    whileTap={{ scale: 0.97 }}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      borderRadius: 18,
+                      border: '1.5px solid rgba(255,255,255,0.5)',
+                      background: 'linear-gradient(135deg, #b8a9f5 0%, #9278dc 100%)',
+                      color: '#fff',
+                      fontSize: 15,
+                      fontWeight: 700,
+                      letterSpacing: '0.02em',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      cursor: 'pointer',
+                      boxShadow: '0 8px 24px rgba(146,120,220,0.35)',
+                      marginTop: 6,
+                    }}
+                  >
+                    <Send size={16} /> Kirim Data
+                  </motion.button>
+                </motion.form>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        );
+      }
+
+      /* ── IDLE / DEFAULT dashboard ─────────────────────── */
+      case 'idle':
+      default: {
+        const categories = [
+          {
+            title: 'Tabungan',
+            value: 'Rp 4.500.000',
+            icon: <Building2 size={20} />,
+            col: bentoColors[0],
+            span: 1,
+          },
+          {
+            title: 'Tagihan',
+            value: '2 Jatuh Tempo',
+            icon: <CreditCard size={20} />,
+            col: bentoColors[2],
+            span: 1,
+            alert: true,
+          },
+          {
+            title: 'Investasi',
+            value: 'Portofolio Stabil',
+            icon: <Zap size={20} />,
+            col: bentoColors[4],
+            span: 1,
+          },
+          {
+            title: 'Promo Aktif',
+            value: '12 Penawaran',
+            icon: <Sparkles size={20} />,
+            col: bentoColors[3],
+            span: 1,
+          },
+        ];
+
+        return (
+          <motion.div initial="hidden" animate="visible">
+            {/* Section header */}
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(26,26,46,0.42)', marginBottom: 2 }}>
+                  Overview
+                </p>
+                <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em' }}>
+                  Layanan Utama
+                </h2>
+              </div>
+              <HelpCircle size={18} style={{ color: 'rgba(26,26,46,0.3)' }} />
+            </div>
+
+            {/* Bento grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {categories.map((c, i) => (
+                <motion.div
+                  key={i}
+                  custom={i}
+                  variants={cardVariants}
+                  whileHover={{ y: -4, scale: 1.03 }}
+                  style={{
+                    background: c.col.bg.replace('0.72', '0.55'),
+                    backdropFilter: 'blur(34px) saturate(210%)',
+                    WebkitBackdropFilter: 'blur(34px) saturate(210%)',
+                    borderRadius: 22,
+                    padding: '18px 16px',
+                    border: '1.5px solid rgba(255,255,255,0.75)',
+                    boxShadow: '0 4px 22px rgba(80,100,160,0.12), inset 0 1.5px 0 rgba(255,255,255,0.85)',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {/* Glass highlight */}
+                  <div style={{
+                    position: 'absolute', top: 0, left: 0, right: 0, height: '40%',
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0.44) 0%, transparent 100%)',
+                    borderRadius: '22px 22px 0 0', pointerEvents: 'none',
+                  }} />
+                  {/* Shimmer */}
+
+
+                  {/* Alert dot */}
+                  {c.alert && (
+                    <motion.div
+                      animate={{ scale: [1, 1.3, 1] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                      style={{
+                        position: 'absolute', top: 12, right: 12,
+                        width: 8, height: 8, borderRadius: '50%',
+                        background: '#f5b8d5',
+                        boxShadow: '0 0 8px rgba(245,184,213,0.7)',
+                      }}
+                    />
+                  )}
+
+                  <div style={{ color: c.col.accent, marginBottom: 12 }}>{c.icon}</div>
+                  <h4 style={{ fontSize: 13, fontWeight: 700, color: c.col.text, marginBottom: 4, letterSpacing: '-0.01em' }}>
+                    {c.title}
+                  </h4>
+                  <div style={{
+                    display: 'inline-block',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: c.col.accent,
+                    background: 'rgba(255,255,255,0.5)',
+                    border: '1px solid rgba(255,255,255,0.7)',
+                    borderRadius: 10,
+                    padding: '3px 8px',
+                    letterSpacing: '0.02em',
+                  }}>
+                    {c.value}
                   </div>
-                  <h4 className="text-slate-800 font-bold text-sm mb-2 relative z-10">{c.title}</h4>
-                  <div className="flex items-center justify-between mt-auto pt-1 relative z-10">
-                    <div className={`text-[10px] px-2.5 py-1 rounded-lg font-bold tracking-wide border border-white/60 shadow-sm ${c.badgeBg} ${c.badgeText}`}>
-                      {c.count}
-                    </div>
-                    <div className="text-slate-400 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-sm font-bold">
-                      ↗
-                    </div>
-                  </div>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
+
+            {/* Quick action strip */}
+            <motion.div
+              custom={4}
+              variants={cardVariants}
+              style={{
+                marginTop: 12,
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.48) 0%, rgba(220,210,255,0.32) 100%)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: '1.5px solid rgba(255,255,255,0.75)',
+                borderRadius: 20,
+                padding: '14px 18px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(100,120,180,0.1)',
+              }}
+            >
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(26,26,46,0.45)', marginBottom: 2, letterSpacing: '0.04em' }}>
+                  Butuh bantuan?
+                </p>
+                <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1a2e' }}>
+                  Tanya Bambang langsung 🎙️
+                </p>
+              </div>
+              <div style={{
+                width: 36, height: 36, borderRadius: 12,
+                background: 'linear-gradient(135deg, #b8a9f5, #9278dc)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 4px 12px rgba(146,120,220,0.3)',
+              }}>
+                <ArrowRight size={16} style={{ color: '#fff' }} />
+              </div>
+            </motion.div>
+          </motion.div>
         );
+      }
     }
   };
 
   return (
     <div className="w-full h-full flex flex-col">
-
-      {/* Content wrapper */}
-      <div className="flex-1 flex flex-col justify-center">
+      <div className="flex-1 flex flex-col justify-start pb-4">
         {renderContent()}
       </div>
     </div>

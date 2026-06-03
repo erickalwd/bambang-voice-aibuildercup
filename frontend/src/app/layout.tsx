@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "BRI Asisten Virtual",
-  description: "Layanan informasi Bank BRI berbasis AI",
+  title: "Bambang — Asisten Virtual BRI",
+  description: "Layanan informasi Bank BRI berbasis AI. Tanya apa saja soal produk, promo, dan layanan BRI.",
 };
 
 export default function RootLayout({
@@ -17,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id">
-      <body className={`${inter.variable} ${outfit.variable} font-sans antialiased bg-slate-50 text-slate-900`}>
+      <body className={`${dmSans.variable} font-sans antialiased`} style={{ fontFamily: "'DM Sans', sans-serif" }}>
         {children}
       </body>
     </html>
