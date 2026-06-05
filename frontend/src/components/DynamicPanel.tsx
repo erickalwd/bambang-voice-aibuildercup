@@ -231,6 +231,88 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
         );
       }
 
+      /* ── FAQ STEPS ────────────────────────────────────── */
+      case 'faq_steps': {
+        const steps = Array.isArray(state.data) && state.data.length > 0 ? state.data : [];
+
+        return (
+          <motion.div initial="hidden" animate="visible">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(26,26,46,0.42)', marginBottom: 2 }}>
+                  Informasi
+                </p>
+                <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em' }}>
+                  Panduan & Tata Cara
+                </h2>
+              </div>
+              <HelpCircle size={20} style={{ color: '#b8a9f5' }} />
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              {steps.map((step: any, i: number) => {
+                const col = bentoColors[i % bentoColors.length];
+                return (
+                  <motion.div
+                    key={i}
+                    custom={i}
+                    variants={cardVariants}
+                    whileHover={{ scale: 1.01, x: 2 }}
+                    style={{
+                      background: col.bg.replace(/rgba\((\d+),(\d+),(\d+),([\.\d]+)\)/g, (m: string, r: string, g: string, b: string, a: string) => `rgba(${r},${g},${b},${Math.min(parseFloat(a), 0.72)})`),
+                      borderRadius: 18,
+                      padding: '16px 14px',
+                      border: '1.5px solid rgba(255,255,255,0.72)',
+                      backdropFilter: 'blur(32px) saturate(200%)',
+                      WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+                      boxShadow: '0 4px 16px rgba(80,100,160,0.08), inset 0 1.5px 0 rgba(255,255,255,0.85)',
+                      display: 'flex',
+                      gap: 12,
+                      alignItems: 'flex-start',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    {/* Glass top highlight */}
+                    <div style={{
+                      position: 'absolute', top: 0, left: 0, right: 0, height: '42%',
+                      background: 'linear-gradient(180deg, rgba(255,255,255,0.42) 0%, transparent 100%)',
+                      borderRadius: '18px 18px 0 0', pointerEvents: 'none',
+                    }} />
+                    
+                    {/* Number Badge */}
+                    <div style={{
+                      width: 28, height: 28, flexShrink: 0, borderRadius: '50%',
+                      background: 'rgba(255,255,255,0.6)', border: '1.5px solid rgba(255,255,255,0.9)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 13, fontWeight: 800, color: col.accent,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.05)', marginTop: 2
+                    }}>
+                      {i + 1}
+                    </div>
+                    
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ fontSize: 14, fontWeight: 800, color: col.text, marginBottom: 4, letterSpacing: '-0.01em' }}>
+                        {step.title || 'Langkah ' + (i + 1)}
+                      </h3>
+                      <p style={{ fontSize: 12, color: col.text, opacity: 0.75, lineHeight: 1.5 }}>
+                        {step.desc}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+              
+              {steps.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '20px', color: 'rgba(26,26,46,0.5)', fontSize: 13 }}>
+                  Sedang memuat data...
+                </div>
+              )}
+            </div>
+          </motion.div>
+        );
+      }
+
       /* ── IDLE / DEFAULT dashboard ─────────────────────── */
       case 'idle':
       default: {

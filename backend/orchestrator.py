@@ -70,9 +70,20 @@ class AudioOrchestrator:
                 "parameters": {
                     "type": "OBJECT",
                     "properties": {
-                        "state": {"type": "STRING", "description": "Pilih 'products' (daftar produk), 'lead_form' (form pendaftaran), atau 'idle' (pusat informasi awal)"}
+                        "state": {"type": "STRING", "description": "Pilih 'products' (daftar produk), 'lead_form' (form pendaftaran), 'idle' (pusat), atau 'faq_steps' (penjelasan langkah/informasi)."},
+                        "data": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "properties": {
+                                    "title": {"type": "STRING", "description": "Judul (misal: nama produk atau nama langkah)"},
+                                    "desc": {"type": "STRING", "description": "Penjelasan detail"}
+                                }
+                            },
+                            "description": "WAJIB DIISI! Daftar data yang akan ditampilkan. Jika state='faq_steps', isi dengan langkah-langkah. Jika state='products', isi dengan daftar produk yang ditanyakan (contoh: BritAma, Simpedes)."
+                        }
                     },
-                    "required": ["state"]
+                    "required": ["state", "data"]
                 }
             }
 
@@ -91,10 +102,13 @@ class AudioOrchestrator:
 
             system_instruction_text = """Anda adalah Bambang, asisten virtual suara Bank BRI. Jawab dengan ramah, hangat, namun profesional layaknya asisten bank. Jangan gunakan kalimat panjang. 
 TUGAS PENTING ANDA TERKAIT TAMPILAN (UI):
-1. Jika pengguna bertanya tentang produk atau Anda ingin menawarkan produk, panggil tool `set_ui_state` dengan state="products" agar layar pengguna berubah menampilkan daftar produk.
-2. Jika pengguna setuju untuk mendaftar kartu kredit/produk, panggil tool `set_ui_state` dengan state="lead_form" agar form pendaftaran muncul.
-3. Jika Anda sedang di halaman form dan pengguna menyebutkan nama, nomor HP, atau email mereka, panggil tool `fill_form_field` untuk mengisi form tersebut secara otomatis.
-4. Gunakan `search_knowledge_base` jika Anda ditanya tentang detail produk Bank BRI."""
+ANDA WAJIB MEMANGGIL TOOL `set_ui_state` SETIAP KALI ANDA MENYEBUTKAN PRODUK ATAU LANGKAH-LANGKAH.
+1. Jika pengguna bertanya/Anda menjelaskan varian produk (misal BritAma, Simpedes), WAJIB panggil tool `set_ui_state` dengan state="products" dan isi array `data` dengan rincian produk (title dan desc).
+2. Jika pengguna setuju untuk mendaftar kartu kredit/produk, panggil tool `set_ui_state` dengan state="lead_form" dan data kosong.
+3. Jika Anda menjelaskan panduan, daftar informasi, tata cara, atau syarat (misal cara blokir, lupa password), WAJIB panggil tool `set_ui_state` dengan state="faq_steps" dan sediakan array `data` (berisi title dan desc tiap langkah/poin).
+JIKA ANDA TIDAK MEMANGGIL TOOL INI, PENGGUNA TIDAK BISA MELIHAT LAYAR DENGAN BENAR!
+4. Jika Anda sedang di halaman form dan pengguna menyebutkan nama, nomor HP, atau email mereka, panggil tool `fill_form_field` untuk mengisi form tersebut secara otomatis.
+5. Gunakan `search_knowledge_base` jika Anda ditanya tentang detail produk Bank BRI."""
             config = types.LiveConnectConfig(
                 response_modalities=["AUDIO"],
                 speech_config=types.SpeechConfig(
@@ -225,6 +239,9 @@ TUGAS PENTING ANDA TERKAIT TAMPILAN (UI):
                                 except Exception as e:
                                     context_text = "Error saat pencarian DB: " + str(e)
                                     
+                                hint = "\n\n[SANGAT PENTING: Jika konteks di atas berisi langkah-langkah, WAJIB segera panggil tool `set_ui_state` dengan state='faq_steps' dan isi array `data` (title & desc). Jika berisi varian produk, gunakan state='products'. PANGGIL TOOL INI BERSAMAAN DENGAN JAWABAN ANDA!]"
+                                context_text += hint
+                                
                                 responses.append({
                                     "id": call_id,
                                     "name": name,
@@ -232,11 +249,13 @@ TUGAS PENTING ANDA TERKAIT TAMPILAN (UI):
                                 })
                                 
                             elif name == "set_ui_state":
+                                print(f">>>>> DEBUG TOOL CALL: set_ui_state with args: {args}")
                                 state = args.get("state", "idle")
+                                data_payload = args.get("data", [])
                                 await client_ws.send_text(json.dumps({
                                     "type": "ui_update",
                                     "ui_state": state,
-                                    "data": []
+                                    "data": data_payload
                                 }))
                                 responses.append({
                                     "id": call_id,

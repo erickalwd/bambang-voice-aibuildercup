@@ -88,5 +88,65 @@
     "category": "products",
     "title": "Agen BRILink",
     "content": "Agen BRILink adalah layanan perbankan tanpa kantor yang dikelola oleh nasabah BRI. Melalui Agen BRILink, masyarakat bisa melakukan transaksi seperti tarik/setor tunai, transfer antar bank, bayar tagihan (PLN, PDAM, BPJS), hingga pembelian pulsa tanpa harus ke bank. Ini adalah perpanjangan tangan BRI untuk inklusi keuangan."
+  },
+  {
+    "id": "faq_brimo_1",
+    "category": "faq",
+    "title": "Lupa Password BRImo",
+    "content": "Jika Anda lupa password BRImo, buka aplikasi BRImo, klik \"Lupa Password\" di halaman login. Masukkan User ID dan Email terdaftar. Link reset password akan dikirimkan ke email Anda. Klik link tersebut dan buat password baru yang terdiri dari 8-12 karakter kombinasi huruf kapital, huruf kecil, dan angka."
+  },
+  {
+    "id": "faq_brimo_2",
+    "category": "faq",
+    "title": "Cara Daftar dan Aktivasi BRImo",
+    "content": "Untuk daftar BRImo bagi yang sudah memiliki rekening BRI: Unduh aplikasi BRImo, pilih \"Belum Punya Akun\", pilih \"Daftar\". Siapkan e-KTP, kartu debit BRI, dan nomor HP aktif. Lakukan perekaman wajah dan masukkan OTP yang dikirim via SMS. Buat User ID dan Password untuk login."
+  },
+  {
+    "id": "faq_brimo_3",
+    "category": "faq",
+    "title": "Lupa PIN BRImo",
+    "content": "Jika Anda lupa PIN BRImo (6 digit angka untuk transaksi), Anda harus login terlebih dahulu ke aplikasi, lalu masuk ke menu Akun -> Keamanan -> Ubah PIN -> Lupa PIN. Anda akan diminta memasukkan password login BRImo, lalu sistem akan mengirimkan link reset PIN ke email terdaftar Anda."
+  },
+  {
+    "id": "faq_brimo_4",
+    "category": "faq",
+    "title": "Lupa User ID BRImo",
+    "content": "Apabila Anda lupa User ID BRImo, Anda bisa membuka aplikasi BRImo, pilih \"Lupa Username\" di halaman login. Masukkan nomor e-KTP, nomor rekening, dan nomor HP terdaftar. Sistem akan mengirimkan User ID Anda melalui SMS ke nomor HP yang terdaftar."
+  },
+  {
+    "id": "faq_brimo_5",
+    "category": "faq",
+    "title": "Limit Transfer BRImo",
+    "content": "Limit transfer BRImo berbeda-termgantung jenis kartu. Secara umum untuk Kartu Classic/BritAma: Transfer sesama BRI hingga Rp 100 Juta/hari. Transfer antar bank hingga Rp 25 Juta/hari. Limit ini dapat diubah melalui menu Akun -> Limit Transaksi di dalam aplikasi BRImo."
+  },
+  {
+    "id": "faq_brimo_6",
+    "category": "faq",
+    "title": "Cara Tarik Tunai Tanpa Kartu di ATM (Cardless)",
+    "content": "Login ke BRImo, pilih menu \"Tarik Tunai\", pilih nominal yang diinginkan, masukkan PIN BRImo. Anda akan mendapatkan 6 digit Kode Tarik Tunai. Di ATM BRI, tekan tombol kiri bawah, pilih \"Tarik Tunai Tanpa Kartu\", masukkan nomor HP yang terdaftar di BRImo, lalu masukkan 6 digit Kode Tarik Tunai tersebut."
+  },
+  {
+    "id": "faq_atm_1",
+    "category": "faq",
+    "title": "Cara Blokir Kartu ATM Hilang/Tertelan",
+    "content": "Jika kartu ATM Anda hilang atau tertelan, segera blokir melalui BRImo: Login BRImo -> Pilih menu Akun -> Pengelolaan Kartu -> Pilih Kartu -> Nonaktifkan Kartu/Blokir. Anda juga bisa menghubungi Contact BRI di 1500017 atau datang ke unit kerja BRI terdekat dengan membawa KTP dan Buku Tabungan untuk penggantian kartu."
+  },
+  {
+    "id": "faq_kur_1",
+    "category": "faq",
+    "title": "Detail Syarat dan Bunga KUR BRI",
+    "content": "KUR Mikro BRI menawarkan pinjaman hingga Rp 50 Juta dengan suku bunga 6% efektif per tahun. Syarat pengajuan: individu yang melakukan usaha produktif dan layak minimal 6 bulan, tidak sedang menerima kredit dari perbankan kecuali kredit konsumtif (KPR, KKB, Kartu Kredit), dokumen KTP, KK, dan surat ijin usaha."
+  },
+  {
+    "id": "faq_prod_1",
+    "category": "faq",
+    "title": "Biaya Admin dan Saldo Mengendap Tabungan BritAma",
+    "content": "Untuk Tabungan BRI BritAma, biaya administrasi bulanan adalah Rp 12.000. Saldo mengendap (saldo minimal yang tidak bisa ditarik) adalah Rp 50.000. Biaya pemeliharaan kartu debit Classic adalah Rp 2.500/bulan, sedangkan Gold Rp 6.500/bulan."
+  },
+  {
+    "id": "faq_brimo_7",
+    "category": "faq",
+    "title": "Cara Bayar QRIS Pakai BRImo",
+    "content": "Buka aplikasi BRImo dan login. Pada halaman utama bagian bawah tengah, klik ikon QRIS. Arahkan kamera HP Anda ke kode QRIS yang tersedia di merchant. Periksa nama merchant dan masukkan nominal pembayaran jika belum terisi otomatis. Konfirmasi transaksi dan masukkan PIN BRImo Anda."
   }
 ]

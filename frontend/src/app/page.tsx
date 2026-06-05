@@ -7,7 +7,7 @@ import { Home as HomeIcon, Settings, Search, Bell } from 'lucide-react';
 
 export default function Home() {
   const [panelState, setPanelState] = useState<{
-    type: 'idle' | 'products' | 'faq' | 'lead_form';
+    type: 'idle' | 'products' | 'faq' | 'faq_steps' | 'lead_form';
     data?: any;
   }>({ type: 'idle' });
 
