@@ -7,12 +7,14 @@ import { Home as HomeIcon, Settings, Search, Bell } from 'lucide-react';
 
 export default function Home() {
   const [panelState, setPanelState] = useState<{
-    type: 'idle' | 'products' | 'faq' | 'faq_steps' | 'lead_form';
+    type: 'idle' | 'products' | 'faq' | 'faq_steps' | 'lead_form' | 'search';
     data?: any;
   }>({ type: 'idle' });
 
   const [greeting, setGreeting] = useState('');
   const [currentDate, setCurrentDate] = useState('');
+
+
 
   useEffect(() => {
     const h = new Date().getHours();
@@ -119,6 +121,8 @@ export default function Home() {
           </div>
         </main>
 
+
+
         {/* ── Bottom Navigation — compact auto-width pill ── */}
         <div className="absolute bottom-7 left-0 right-0 flex justify-center z-50">
           <nav
@@ -134,19 +138,27 @@ export default function Home() {
               <button
                 key={label}
                 title={label}
+                onClick={() => {
+                  if (label === 'Cari') setPanelState({ type: 'search' });
+                  if (label === 'Home') setPanelState({ type: 'idle' });
+                }}
                 className="flex flex-col items-center justify-center transition-all"
                 style={{
                   width: 52,
                   height: 52,
                   borderRadius: 30,
-                  background: active
+                  background: active && panelState.type !== 'search'
+                    ? 'rgba(255,255,255,0.55)'
+                    : label === 'Cari' && panelState.type === 'search'
                     ? 'rgba(255,255,255,0.55)'
                     : 'transparent',
-                  boxShadow: active
+                  boxShadow: active && panelState.type !== 'search'
+                    ? '0 2px 10px rgba(80,100,160,0.14), inset 0 1px 0 rgba(255,255,255,0.9)'
+                    : label === 'Cari' && panelState.type === 'search'
                     ? '0 2px 10px rgba(80,100,160,0.14), inset 0 1px 0 rgba(255,255,255,0.9)'
                     : 'none',
-                  color: active ? '#3a7bd5' : 'rgba(26,26,46,0.4)',
-                  border: active ? '1px solid rgba(255,255,255,0.75)' : '1px solid transparent',
+                  color: (active && panelState.type !== 'search') || (label === 'Cari' && panelState.type === 'search') ? '#3a7bd5' : 'rgba(26,26,46,0.4)',
+                  border: (active && panelState.type !== 'search') || (label === 'Cari' && panelState.type === 'search') ? '1px solid rgba(255,255,255,0.75)' : '1px solid transparent',
                 }}
               >
                 <Icon size={19} strokeWidth={active ? 2.2 : 1.7} />

@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Building2, HelpCircle, Send, Wallet, Zap, ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
+import { CreditCard, Building2, HelpCircle, Send, Wallet, Zap, ArrowRight, CheckCircle2, Sparkles, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface DynamicPanelProps {
   state: {
-    type: 'idle' | 'products' | 'faq' | 'lead_form';
+    type: 'idle' | 'products' | 'faq' | 'faq_steps' | 'lead_form' | 'search';
     data?: any;
   };
 }
@@ -33,6 +33,41 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
   const [formData, setFormData] = useState({ name: '', phone: '', email: '' });
   const [submitted, setSubmitted] = useState(false);
 
+  // Search states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[] | null>(null);
+
+  useEffect(() => {
+    if (state.type === 'search' && suggestions.length === 0) {
+      fetch('http://localhost:8000/api/suggestions')
+        .then(res => res.json())
+        .then(data => {
+          if (data.suggestions) setSuggestions(data.suggestions);
+        })
+        .catch(console.error);
+    }
+  }, [state.type]);
+
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) return;
+    setSearchQuery(query);
+    setIsSearching(true);
+    setSearchResults(null);
+    try {
+      const res = await fetch(`http://localhost:8000/api/search?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (data.results) {
+        setSearchResults(data.results);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   useEffect(() => {
     const handleFormFill = (e: any) => {
       const data = e.detail;
@@ -44,6 +79,88 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
 
   const renderContent = () => {
     switch (state.type) {
+
+      /* ── SEARCH ───────────────────────────────────────── */
+      case 'search': {
+        return (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="flex flex-col h-full">
+            <div className="mb-4">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input 
+                  autoFocus
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
+                  placeholder="Cari fitur, produk, atau panduan..."
+                  className="w-full pl-11 pr-4 py-3 rounded-full outline-none"
+                  style={{ background: 'rgba(255,255,255,0.6)', border: '1.5px solid rgba(255,255,255,0.8)', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', color: '#1a1a2e', fontSize: 14 }}
+                />
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto no-scrollbar pb-24">
+              {/* Saran Pencarian */}
+              {!searchResults && !isSearching && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Saran Pencarian</p>
+                  <div className="flex flex-wrap gap-2">
+                    {suggestions.map((s, i) => (
+                      <button 
+                        key={i} 
+                        onClick={() => handleSearch(s)}
+                        className="px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105"
+                        style={{ background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.8)', color: '#3a7bd5', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                    {suggestions.length === 0 && <span className="text-sm text-gray-400">Memuat...</span>}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Loading State */}
+              {isSearching && (
+                <div className="mt-8 flex flex-col items-center justify-center text-center text-sm text-gray-500 animate-pulse gap-2">
+                  <Search size={24} className="text-gray-300" />
+                  Mencari dari Knowledge Base BRI...
+                </div>
+              )}
+
+              {/* Hasil Pencarian */}
+              {searchResults && !isSearching && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-3">
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Hasil Pencarian</p>
+                  {searchResults.map((res: any, i: number) => {
+                    const col = bentoColors[i % bentoColors.length];
+                    return (
+                      <div 
+                        key={i}
+                        className="p-4 rounded-2xl flex flex-col gap-1"
+                        style={{ 
+                          background: col.bg.replace(/rgba\((\d+),(\d+),(\d+),([\.\d]+)\)/g, (m: string, r: string, g: string, b: string, a: string) => `rgba(${r},${g},${b},${Math.min(parseFloat(a), 0.72)})`),
+                          border: '1.5px solid rgba(255,255,255,0.7)', 
+                          boxShadow: '0 4px 16px rgba(80,100,160,0.05)' 
+                        }}
+                      >
+                        <h3 style={{ fontSize: 14, fontWeight: 800, color: col.text, letterSpacing: '-0.01em' }}>{res.title}</h3>
+                        <p style={{ fontSize: 12, color: col.text, opacity: 0.75, lineHeight: 1.5 }}>{res.desc}</p>
+                      </div>
+                    );
+                  })}
+                  {searchResults.length === 0 && (
+                    <div className="text-center py-8 text-sm text-gray-400">
+                      Tidak ada hasil yang cocok.
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        );
+      }
 
       /* ── PRODUCTS ─────────────────────────────────────── */
       case 'products': {

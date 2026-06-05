@@ -20,7 +20,8 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 emb_client = OpenAI(
     api_key=os.getenv("EMBEDDING_API_KEY"),
     base_url=os.getenv("EMBEDDING_ENDPOINT"),
-    default_headers={"api-key": os.getenv("EMBEDDING_API_KEY")}
+    default_headers={"api-key": os.getenv("EMBEDDING_API_KEY")},
+    default_query={"api-version": "2023-05-15"}
 )
 emb_model = os.getenv("EMBEDDING_MODEL")
 
