@@ -127,7 +127,17 @@ export default function Home() {
         <div className="absolute bottom-7 left-0 right-0 flex justify-center z-50">
           <nav
             className="glass-pill"
-            style={{ borderRadius: 40, padding: '8px 8px', display: 'inline-flex', gap: 2 }}
+            style={{ 
+              borderRadius: 40, 
+              padding: '8px 8px', 
+              display: 'inline-flex', 
+              gap: 2,
+              background: 'rgba(255, 255, 255, 0.45)',
+              backdropFilter: 'blur(30px) saturate(210%) brightness(1.07)',
+              WebkitBackdropFilter: 'blur(30px) saturate(210%) brightness(1.07)',
+              border: '1.5px solid rgba(255, 255, 255, 0.75)',
+              boxShadow: '0 8px 32px rgba(80,100,160,0.15), inset 0 1.5px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(255,255,255,0.2)'
+            }}
           >
             {[
               { icon: HomeIcon, active: true, label: 'Home' },
