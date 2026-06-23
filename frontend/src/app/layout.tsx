@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id">
-      <body className={`${dmSans.variable} font-sans antialiased`} style={{ fontFamily: "'DM Sans', sans-serif" }}>
+    <html lang="id" suppressHydrationWarning>
+      <body suppressHydrationWarning className={`${dmSans.variable} font-sans antialiased`} style={{ fontFamily: "'DM Sans', sans-serif" }}>
         {children}
       </body>
     </html>

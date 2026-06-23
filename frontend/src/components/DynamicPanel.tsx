@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Building2, HelpCircle, Send, Wallet, Zap, ArrowRight, CheckCircle2, Sparkles, Search } from 'lucide-react';
+import { CreditCard, Building2, HelpCircle, Send, Wallet, Zap, ArrowRight, CheckCircle2, Sparkles, Search, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface DynamicPanelProps {
   state: {
-    type: 'idle' | 'products' | 'faq' | 'faq_steps' | 'lead_form' | 'search';
+    type: 'idle' | 'products' | 'faq' | 'faq_steps' | 'lead_form' | 'search' | 'fraud_alert';
     data?: any;
   };
 }
@@ -21,7 +21,7 @@ const bentoColors = [
   { bg: 'linear-gradient(135deg, #ffe4d0 0%, #f5c4a0 100%)', accent: '#e07840', text: '#5c2800' },
 ];
 
-const cardVariants = {
+const cardVariants: any = {
   hidden: { opacity: 0, y: 16, scale: 0.96 },
   visible: (i: number) => ({
     opacity: 1, y: 0, scale: 1,
@@ -79,6 +79,54 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
 
   const renderContent = () => {
     switch (state.type) {
+
+      /* ── FRAUD ALERT ──────────────────────────────────── */
+      case 'fraud_alert': {
+        return (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, type: 'spring', bounce: 0.4 }}
+            className="flex flex-col items-center justify-center text-center h-full pt-10"
+          >
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+              style={{
+                width: 72, height: 72, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 8px 32px rgba(255,100,100,0.4)',
+                marginBottom: 24,
+                border: '2px solid rgba(255,255,255,0.8)'
+              }}
+            >
+              <ShieldAlert size={36} color="#d90429" />
+            </motion.div>
+            
+            <h2 style={{ fontSize: 24, fontWeight: 900, color: '#d90429', letterSpacing: '-0.02em', marginBottom: 8 }}>
+              Peringatan Keamanan
+            </h2>
+            <p style={{ fontSize: 14, color: '#1a1a2e', fontWeight: 600, marginBottom: 16 }}>
+              Terdeteksi Indikasi Penipuan
+            </p>
+            
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.6)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 0, 0, 0.3)',
+              borderRadius: 16,
+              padding: '16px',
+              fontSize: 13,
+              color: 'rgba(26,26,46,0.8)',
+              lineHeight: 1.6,
+              boxShadow: '0 4px 16px rgba(255,0,0,0.05)'
+            }}>
+              Transaksi keluar telah <strong>dibekukan sementara</strong>. Jangan berikan kode OTP, PIN, atau Password Anda kepada siapa pun yang mengaku dari Bank BRI.
+            </div>
+          </motion.div>
+        );
+      }
 
       /* ── SEARCH ───────────────────────────────────────── */
       case 'search': {

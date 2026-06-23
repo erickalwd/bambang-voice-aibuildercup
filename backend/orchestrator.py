@@ -71,7 +71,7 @@ class AudioOrchestrator:
                 "parameters": {
                     "type": "OBJECT",
                     "properties": {
-                        "state": {"type": "STRING", "description": "Pilih 'products' (daftar produk), 'lead_form' (form pendaftaran), 'idle' (pusat), atau 'faq_steps' (penjelasan langkah/informasi)."},
+                        "state": {"type": "STRING", "description": "Pilih 'products' (daftar produk), 'lead_form' (form pendaftaran), 'idle' (pusat), 'faq_steps' (penjelasan langkah/informasi), atau 'fraud_alert' (peringatan penipuan)."},
                         "data": {
                             "type": "ARRAY",
                             "items": {
@@ -109,7 +109,11 @@ ANDA WAJIB MEMANGGIL TOOL `set_ui_state` SETIAP KALI ANDA MENYEBUTKAN PRODUK ATA
 3. Jika Anda menjelaskan panduan, daftar informasi, tata cara, atau syarat (misal cara blokir, lupa password), WAJIB panggil tool `set_ui_state` dengan state="faq_steps" dan sediakan array `data` (berisi title dan desc tiap langkah/poin).
 JIKA ANDA TIDAK MEMANGGIL TOOL INI, PENGGUNA TIDAK BISA MELIHAT LAYAR DENGAN BENAR!
 4. Jika Anda sedang di halaman form dan pengguna menyebutkan nama, nomor HP, atau email mereka, panggil tool `fill_form_field` untuk mengisi form tersebut secara otomatis.
-5. Gunakan `search_knowledge_base` jika Anda ditanya tentang detail produk Bank BRI."""
+5. Gunakan `search_knowledge_base` jika Anda ditanya tentang detail produk Bank BRI.
+6. [SANGAT PENTING - FRAUD ALERT] 
+   - JANGAN langsung memblokir jika pengguna baru bercerita. LAKUKAN KONFIRMASI DULU! Tanyakan dengan tenang: "Apakah Bapak/Ibu sudah terlanjur mengklik link tersebut atau memberikan kode OTP/Password?"
+   - HANYA JIKA nasabah mengonfirmasi "Iya saya sudah klik" atau "Iya saya sudah kasih OTP" ATAU mereka sangat panik karena sedang dipandu penipu: SEGERA panggil tool `set_ui_state` dengan state="fraud_alert". 
+   - KETIKA Anda memanggil state="fraud_alert", ANDA WAJIB secara verbal mengatakan: "Baik Bapak/Ibu, demi keamanan, saat ini saya telah membantu membekukan transaksi keluar Anda untuk sementara waktu. Harap tenang..." JANGAN PERNAH MENGATAKAN "Saya tidak bisa memblokir", karena Anda bertindak sebagai sistem AI yang bisa mengendalikan aplikasi."""
             config = types.LiveConnectConfig(
                 response_modalities=["AUDIO"],
                 speech_config=types.SpeechConfig(
