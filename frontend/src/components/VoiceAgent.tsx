@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, MicOff, Square } from 'lucide-react';
+import { Mic, MicOff, MessageSquareText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useI18n } from '@/lib/i18n';
 
 type AgentState = 'idle' | 'listening' | 'speaking';
 
@@ -11,6 +12,7 @@ export default function VoiceAgent({
 }: {
   onPanelChange: (state: any) => void;
 }) {
+  const { lang, t, setLocked } = useI18n();
   const [agentState, setAgentStateState] = useState<AgentState>('idle');
   const agentStateRef = useRef<AgentState>('idle');
   const setAgentState = (s: AgentState) => {
@@ -203,7 +205,7 @@ export default function VoiceAgent({
       processor.connect(actx.destination);
       scriptProcessor.current = processor;
 
-      ws.current = new WebSocket('ws://localhost:8000/ws/voice');
+      ws.current = new WebSocket(`ws://localhost:8000/ws/voice?lang=${lang}`);
       ws.current.onopen = () => { setConnected(true); setAgentState('listening'); };
       ws.current.onmessage = (event) => {
         try {
@@ -236,7 +238,7 @@ export default function VoiceAgent({
 
     } catch (e) {
       console.error("Session start error:", e);
-      alert("Gagal mengakses mikrofon atau server.");
+      alert(t.voice.error);
     }
   };
 
@@ -266,311 +268,169 @@ export default function VoiceAgent({
 
   useEffect(() => { return () => { stopSession(); }; }, []);
 
-  /* ─── Color map per state ─────────────────────────────── */
+  // The session's language is fixed at connect time, so lock the switch while connected.
+  useEffect(() => { setLocked(connected); }, [connected, setLocked]);
+
+  /* ─── Presentation per state (BRI Design System) ─────── */
   const stateConfig = {
     idle: {
-      aura1: 'rgba(184, 169, 245, 0.35)',
-      aura2: 'rgba(245, 184, 213, 0.28)',
-      orbBg: 'linear-gradient(145deg, rgba(255,255,255,0.55) 0%, rgba(220,210,255,0.45) 100%)',
-      ring: '#b8a9f5',
-      label: 'Sobat BRI',
+      label: t.voice.idle.label,
       title: 'Mulai Bicara',
-      sub: 'Tap untuk memulai',
+      sub: t.voice.idle.sub,
+      frame: '#FFFFFF',
+      fill: '#FFFFFF',
+      fg: 'var(--primary-deep)',
+      dot: null as string | null,
     },
     listening: {
-      aura1: 'rgba(110, 168, 247, 0.4)',
-      aura2: 'rgba(163, 245, 216, 0.3)',
-      orbBg: 'linear-gradient(145deg, rgba(200,225,255,0.55) 0%, rgba(163,245,216,0.35) 100%)',
-      ring: '#6ea8f7',
-      label: 'Mendengarkan',
+      label: t.voice.listening.label,
       title: '...',
-      sub: 'Tap untuk berhenti',
+      sub: t.voice.listening.sub,
+      frame: 'var(--primary-light)',
+      fill: 'var(--primary-light)',
+      fg: 'var(--blue-700)',
+      dot: 'var(--primary-light)',
     },
     speaking: {
-      aura1: 'rgba(245, 184, 213, 0.45)',
-      aura2: 'rgba(245, 232, 163, 0.35)',
-      orbBg: 'linear-gradient(145deg, rgba(255,210,230,0.55) 0%, rgba(255,240,200,0.4) 100%)',
-      ring: '#f5b8d5',
-      label: 'Bambang',
+      label: t.voice.speaking.label,
       title: 'Berbicara',
-      sub: 'Tap untuk berhenti',
+      sub: t.voice.speaking.sub,
+      frame: '#FFFFFF',
+      fill: 'var(--primary-mid)',
+      fg: '#FFFFFF',
+      dot: '#FFFFFF',
     },
   };
 
   const cfg = stateConfig[agentState];
+  const ease = [0.4, 0, 0.2, 1] as const;
 
   /* ─── Wave bars for speaking state ───────────────────── */
   const waveBars = Array.from({ length: 7 });
 
   return (
     <>
-      {/* ── Voice Orb Area ─────────────────────────────── */}
-      <div className="flex flex-col items-center w-full" style={{ paddingTop: 8, paddingBottom: 4 }}>
+      {/* ── Voice Control: BRI graphic frame ───────────── */}
+      <div className="flex flex-col items-center w-full">
+        <div className="relative" style={{ width: 176, height: 176 }}>
+          {agentState === 'listening' && (
+            <>
+              <span className="gframe-echo" />
+              <span className="gframe-echo delay" />
+            </>
+          )}
 
-        {/* Ambient aura blobs */}
-        <div className="relative flex items-center justify-center" style={{ width: 300, height: 300 }}>
-          <motion.div
-            animate={{ scale: [1, 1.18, 1], opacity: [0.5, 0.8, 0.5] }}
-            transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut' }}
-            style={{
-              position: 'absolute',
-              width: 260,
-              height: 260,
-              borderRadius: '50%',
-              background: cfg.aura1,
-              filter: 'blur(38px)',
-            }}
-          />
-          <motion.div
-            animate={{ scale: [1, 1.25, 1], opacity: [0.4, 0.65, 0.4] }}
-            transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut', delay: 0.6 }}
-            style={{
-              position: 'absolute',
-              width: 210,
-              height: 210,
-              borderRadius: '50%',
-              background: cfg.aura2,
-              filter: 'blur(28px)',
-            }}
-          />
-
-          {/* Main Orb Button */}
-          <motion.button
+          <button
             id="voice-orb-btn"
             onClick={!connected ? startSession : stopSession}
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.93 }}
-            className={`glass-orb ${agentState === 'listening' ? 'listening-ring' : ''}`}
-            style={{
-              position: 'relative',
-              width: 210,
-              height: 210,
-              borderRadius: '50%',
-              /* tint the glass orb with state colour very lightly */
-              background: agentState === 'idle'
-                ? 'rgba(255,255,255,0.22)'
-                : agentState === 'listening'
-                  ? 'rgba(180,215,255,0.2)'
-                  : 'rgba(255,210,230,0.2)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              overflow: 'hidden',
-              zIndex: 10,
-            }}
+            aria-label={connected ? t.voice.stop : t.voice.start}
+            className="gframe gframe-btn"
+            style={{ width: '100%', height: '100%', borderColor: cfg.frame }}
           >
-            {/* Curved top highlight — mimics liquid glass sphere */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 0, left: 0, right: 0,
-                height: '46%',
-                borderRadius: '50% 50% 0 0 / 42% 42% 0 0',
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.52) 0%, rgba(255,255,255,0.06) 100%)',
-                pointerEvents: 'none',
-              }}
-            />
-            {/* Moving shimmer band */}
-
-
-            {/* Spinning ring decoration */}
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 14, ease: 'linear' }}
-              style={{
-                position: 'absolute',
-                inset: 10,
-                borderRadius: '50%',
-                border: `1.5px dashed ${cfg.ring}55`,
-              }}
-            />
-
-            {/* Content */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={agentState}
-                initial={{ opacity: 0, scale: 0.85, y: 6 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: -4 }}
-                transition={{ duration: 0.3 }}
-                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, zIndex: 2 }}
-              >
-                {agentState === 'speaking' ? (
-                  /* Wave bars */
-                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 36 }}>
-                    {waveBars.map((_, i) => (
-                      <motion.div
-                        key={i}
-                        animate={{ scaleY: [0.3, 1, 0.3] }}
-                        transition={{
-                          repeat: Infinity,
-                          duration: 0.7 + i * 0.08,
-                          delay: i * 0.09,
-                          ease: 'easeInOut',
-                        }}
-                        style={{
-                          width: 4,
-                          height: 32,
-                          borderRadius: 4,
-                          background: `linear-gradient(180deg, #f5b8d5, #b8a9f5)`,
-                          transformOrigin: 'bottom',
-                        }}
-                      />
-                    ))}
-                  </div>
-                ) : agentState === 'listening' ? (
-                  <motion.div
-                    animate={{ scale: [1, 1.15, 1], opacity: [0.8, 1, 0.8] }}
-                    transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
-                  >
-                    <Mic size={36} color="#6ea8f7" strokeWidth={1.8} />
-                  </motion.div>
-                ) : (
-                  <Mic size={36} color="#b8a9f5" strokeWidth={1.6} />
-                )}
-
-                <span
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    letterSpacing: '0.13em',
-                    textTransform: 'uppercase',
-                    color: agentState === 'idle' ? '#8b7ec8' : agentState === 'listening' ? '#4a8ed4' : '#c07090',
-                    marginTop: 2,
-                  }}
+            <div className="gframe-inner" style={{ background: cfg.fill }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={agentState}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2, ease }}
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}
                 >
-                  {cfg.label}
-                </span>
-              </motion.div>
-            </AnimatePresence>
-          </motion.button>
+                  {agentState === 'speaking' ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, height: 36 }}>
+                      {waveBars.map((_, i) => (
+                        <motion.div
+                          key={i}
+                          animate={{ scaleY: [0.3, 1, 0.3] }}
+                          transition={{
+                            repeat: Infinity,
+                            duration: 0.7 + i * 0.08,
+                            delay: i * 0.09,
+                            ease: 'easeInOut',
+                          }}
+                          style={{
+                            width: 4,
+                            height: 32,
+                            borderRadius: 2,
+                            background: '#FFFFFF',
+                          }}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <Mic size={40} color={cfg.fg} strokeWidth={1.75} />
+                  )}
+
+                  <span
+                    style={{
+                      font: '700 11px/16px var(--font-sans)',
+                      letterSpacing: '.06em',
+                      textTransform: 'uppercase',
+                      color: cfg.fg,
+                    }}
+                  >
+                    {cfg.label}
+                  </span>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </button>
         </div>
 
-        {/* Status pill below orb */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={agentState + '-pill'}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.35 }}
-            style={{
-              marginTop: 12,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              background: 'rgba(255,255,255,0.5)',
-              backdropFilter: 'blur(14px)',
-              WebkitBackdropFilter: 'blur(14px)',
-              border: '1.5px solid rgba(255,255,255,0.8)',
-              borderRadius: 32,
-              padding: '7px 18px',
-              boxShadow: '0 4px 16px rgba(100,120,180,0.12)',
-            }}
-          >
-            {agentState !== 'idle' && (
-              <motion.span
-                animate={{ opacity: [1, 0.3, 1] }}
-                transition={{ repeat: Infinity, duration: 1.4 }}
-                style={{
-                  width: 7, height: 7, borderRadius: '50%',
-                  background: agentState === 'listening' ? '#6ea8f7' : '#f5b8d5',
-                  display: 'inline-block',
-                }}
-              />
+        {/* Status + mute controls */}
+        <div className="flex items-center justify-center flex-wrap" style={{ marginTop: 20, gap: 8 }}>
+          <span className="pill-on-brand">
+            {cfg.dot && (
+              <span className="inline-block rounded-full" style={{ width: 8, height: 8, background: cfg.dot }} />
             )}
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 600,
-                color: 'rgba(26,26,46,0.6)',
-                letterSpacing: '0.04em',
-              }}
-            >
-              {cfg.sub}
-            </span>
-          </motion.div>
-        </AnimatePresence>
+            {cfg.sub}
+          </span>
 
-        {/* Mute button — only when connected */}
-        <AnimatePresence>
+          {/* Mute button — only when connected */}
           {connected && (
-            <motion.button
+            <button
               id="mute-btn"
-              initial={{ opacity: 0, y: 8, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 4, scale: 0.9 }}
               onClick={toggleMute}
-              style={{
-                marginTop: 10,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                background: isMuted ? 'rgba(245,184,213,0.4)' : 'rgba(255,255,255,0.38)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                border: '1.5px solid rgba(255,255,255,0.7)',
-                borderRadius: 24,
-                padding: '6px 16px',
-                fontSize: 12,
-                fontWeight: 600,
-                color: isMuted ? '#c07090' : 'rgba(26,26,46,0.5)',
-                cursor: 'pointer',
-                boxShadow: '0 2px 10px rgba(100,120,180,0.1)',
-              }}
+              className={`pill-on-brand ${isMuted ? 'is-off' : ''}`}
+              aria-label={isMuted ? t.voice.unmuteAria : t.voice.muteAria}
             >
-              {isMuted ? <MicOff size={14} /> : <Mic size={14} />}
-              {isMuted ? 'Mic Off' : 'Mic On'}
-            </motion.button>
+              {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
+              {isMuted ? t.voice.micOff : t.voice.micOn}
+            </button>
           )}
-        </AnimatePresence>
+        </div>
       </div>
 
-      {/* ── Bot Transcript Card ─────────────────────────── */}
+      {/* ── Bot Transcript Bubble ───────────────────────── */}
       <AnimatePresence>
         {botTranscript && (
           <motion.div
-            initial={{ opacity: 0, y: 14, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full px-6 mt-2 mb-1"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease }}
+            className="w-full flex items-start"
+            style={{ marginTop: 24, gap: 10 }}
           >
             <div
+              className="flex items-center justify-center flex-shrink-0"
+              style={{ width: 32, height: 32, borderRadius: '22%', background: 'var(--primary-light)', color: 'var(--blue-700)' }}
+            >
+              <MessageSquareText size={16} />
+            </div>
+            <div
               style={{
-                background: 'rgba(255,255,255,0.52)',
-                backdropFilter: 'blur(20px) saturate(160%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-                border: '1.5px solid rgba(255,255,255,0.78)',
-                borderRadius: 24,
-                padding: '14px 18px',
-                boxShadow: '0 6px 28px rgba(100,120,180,0.14), inset 0 1px 0 rgba(255,255,255,0.85)',
+                flex: 1,
+                background: '#FFFFFF',
+                borderRadius: '4px 16px 16px 16px',
+                padding: '12px 14px',
+                boxShadow: 'var(--shadow-pop)',
               }}
             >
-              <p
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  color: '#b8a9f5',
-                  marginBottom: 5,
-                }}
-              >
-                🤖 Bambang berkata
-              </p>
-              <p
-                style={{
-                  fontSize: 14,
-                  fontWeight: 500,
-                  color: '#2d2a4a',
-                  lineHeight: 1.55,
-                  fontStyle: 'italic',
-                }}
-              >
-                "{botTranscript}"
+              <p className="eyebrow" style={{ color: 'var(--primary-deep)', marginBottom: 4 }}>{t.voice.transcript}</p>
+              <p style={{ font: '400 14px/22px var(--font-sans)', color: 'var(--fg1)' }}>
+                {botTranscript}
               </p>
             </div>
           </motion.div>

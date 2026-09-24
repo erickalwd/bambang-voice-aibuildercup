@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Building2, HelpCircle, Send, Wallet, Zap, ArrowRight, CheckCircle2, Sparkles, Search, ShieldAlert } from 'lucide-react';
+import { CreditCard, Building2, Send, Wallet, Zap, ArrowRight, ArrowUpRight, CheckCircle2, Sparkles, Search, ShieldAlert, Mic, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useI18n } from '@/lib/i18n';
 
 interface DynamicPanelProps {
   state: {
@@ -11,25 +12,34 @@ interface DynamicPanelProps {
   };
 }
 
-/* ── Bento card palette ───────────────────────────────────── */
-const bentoColors = [
-  { bg: 'linear-gradient(135deg, #c8e6ff 0%, #a8d4ff 100%)', accent: '#5b9ee8', text: '#1a3a5c' },
-  { bg: 'linear-gradient(135deg, #e4d9ff 0%, #cbbcf5 100%)', accent: '#9278dc', text: '#2d1f5c' },
-  { bg: 'linear-gradient(135deg, #ffe4f0 0%, #f5c5d8 100%)', accent: '#d46090', text: '#5c1f3a' },
-  { bg: 'linear-gradient(135deg, #fff8d0 0%, #f5e4a0 100%)', accent: '#c4980a', text: '#5c3a00' },
-  { bg: 'linear-gradient(135deg, #d0ffe8 0%, #a8f0cc 100%)', accent: '#28b870', text: '#0c4028' },
-  { bg: 'linear-gradient(135deg, #ffe4d0 0%, #f5c4a0 100%)', accent: '#e07840', text: '#5c2800' },
-];
+/* ── Motion — BRI standard curve, fade only (no scale, no spring) ── */
+const EASE = [0.4, 0, 0.2, 1] as const;
 
 const cardVariants: any = {
-  hidden: { opacity: 0, y: 16, scale: 0.96 },
+  hidden: { opacity: 0, y: 4 },
   visible: (i: number) => ({
-    opacity: 1, y: 0, scale: 1,
-    transition: { delay: i * 0.07, duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.05, duration: 0.3, ease: EASE },
   }),
 };
 
+const fadeIn = {
+  initial: { opacity: 0, y: 4 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.3, ease: EASE },
+};
+
+function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <p className="eyebrow">{eyebrow}</p>
+      <h2 className="section-title" style={{ marginTop: 2 }}>{title}</h2>
+    </div>
+  );
+}
+
 export default function DynamicPanel({ state }: DynamicPanelProps) {
+  const { t } = useI18n();
   const [formData, setFormData] = useState({ name: '', phone: '', email: '' });
   const [submitted, setSubmitted] = useState(false);
 
@@ -83,46 +93,23 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
       /* ── FRAUD ALERT ──────────────────────────────────── */
       case 'fraud_alert': {
         return (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, type: 'spring', bounce: 0.4 }}
-            className="flex flex-col items-center justify-center text-center h-full pt-10"
-          >
-            <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-              style={{
-                width: 72, height: 72, borderRadius: '50%',
-                background: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 8px 32px rgba(255,100,100,0.4)',
-                marginBottom: 24,
-                border: '2px solid rgba(255,255,255,0.8)'
-              }}
-            >
-              <ShieldAlert size={36} color="#d90429" />
-            </motion.div>
-            
-            <h2 style={{ fontSize: 24, fontWeight: 900, color: '#d90429', letterSpacing: '-0.02em', marginBottom: 8 }}>
-              Peringatan Keamanan
-            </h2>
-            <p style={{ fontSize: 14, color: '#1a1a2e', fontWeight: 600, marginBottom: 16 }}>
-              Terdeteksi Indikasi Penipuan
-            </p>
-            
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.6)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 0, 0, 0.3)',
-              borderRadius: 16,
-              padding: '16px',
-              fontSize: 13,
-              color: 'rgba(26,26,46,0.8)',
-              lineHeight: 1.6,
-              boxShadow: '0 4px 16px rgba(255,0,0,0.05)'
-            }}>
-              Transaksi keluar telah <strong>dibekukan sementara</strong>. Jangan berikan kode OTP, PIN, atau Password Anda kepada siapa pun yang mengaku dari Bank BRI.
+          <motion.div {...fadeIn} className="list" style={{ borderColor: 'var(--danger-border)' }}>
+            <div className="flex items-center" style={{ gap: 14, padding: 16, background: 'var(--danger-bg)' }}>
+              <div
+                className="flex items-center justify-center flex-shrink-0"
+                style={{ width: 52, height: 52, borderRadius: '22%', background: 'var(--danger-fg)', color: '#fff' }}
+              >
+                <ShieldAlert size={26} strokeWidth={1.75} />
+              </div>
+              <div>
+                <p className="eyebrow" style={{ color: 'var(--danger-fg)' }}>{t.fraud.eyebrow}</p>
+                <h2 style={{ font: '700 18px/26px var(--font-sans)', color: 'var(--fg1)' }}>
+                  {t.fraud.title}
+                </h2>
+              </div>
+            </div>
+            <div style={{ padding: 16, font: '400 14px/22px var(--font-sans)', color: 'var(--fg2)' }}>
+              {t.fraud.bodyBefore}<strong style={{ color: 'var(--fg1)' }}>{t.fraud.bodyStrong}</strong>{t.fraud.bodyAfter}
             </div>
           </motion.div>
         );
@@ -131,76 +118,88 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
       /* ── SEARCH ───────────────────────────────────────── */
       case 'search': {
         return (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="flex flex-col h-full">
-            <div className="mb-4">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input 
-                  autoFocus
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
-                  placeholder="Cari fitur, produk, atau panduan..."
-                  className="w-full pl-11 pr-4 py-3 rounded-full outline-none"
-                  style={{ background: 'rgba(255,255,255,0.6)', border: '1.5px solid rgba(255,255,255,0.8)', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', color: '#1a1a2e', fontSize: 14 }}
-                />
-              </div>
+          <motion.div {...fadeIn} className="flex flex-col h-full">
+            <SectionHeader eyebrow={t.search.eyebrow} title={t.search.title} />
+            <div className="relative" style={{ marginBottom: 20 }}>
+              <Search
+                className="absolute top-1/2 -translate-y-1/2"
+                style={{ left: 16, color: 'var(--primary-deep)' }}
+                size={18}
+              />
+              <input
+                autoFocus
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
+                placeholder={t.search.placeholder}
+                className="input input-search"
+                style={{ height: 48, boxShadow: 'var(--shadow-card)' }}
+              />
             </div>
 
-            <div className="flex-1 overflow-y-auto no-scrollbar pb-24">
+            <div className="flex-1">
               {/* Saran Pencarian */}
               {!searchResults && !isSearching && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Saran Pencarian</p>
-                  <div className="flex flex-wrap gap-2">
+                <motion.div {...fadeIn}>
+                  <p className="eyebrow" style={{ marginBottom: 10 }}>{t.search.suggestions}</p>
+                  <div className="list">
                     {suggestions.map((s, i) => (
-                      <button 
-                        key={i} 
+                      <button
+                        key={i}
                         onClick={() => handleSearch(s)}
-                        className="px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105"
-                        style={{ background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.8)', color: '#3a7bd5', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}
+                        className="list-row w-full text-left items-center"
+                        style={{ cursor: 'pointer' }}
                       >
-                        {s}
+                        <Search size={16} style={{ color: 'var(--fg5)', flexShrink: 0 }} />
+                        <span style={{ flex: 1, font: '500 14px/22px var(--font-sans)', color: 'var(--fg1)' }}>{s}</span>
+                        <ArrowUpRight size={16} style={{ color: 'var(--primary-mid)', flexShrink: 0 }} />
                       </button>
                     ))}
-                    {suggestions.length === 0 && <span className="text-sm text-gray-400">Memuat...</span>}
+                    {suggestions.length === 0 && (
+                      <div className="list-row" style={{ fontSize: 14, color: 'var(--fg5)' }}>{t.search.loadingSuggestions}</div>
+                    )}
                   </div>
                 </motion.div>
               )}
 
               {/* Loading State */}
               {isSearching && (
-                <div className="mt-8 flex flex-col items-center justify-center text-center text-sm text-gray-500 animate-pulse gap-2">
-                  <Search size={24} className="text-gray-300" />
-                  Mencari dari Knowledge Base BRI...
+                <div className="list">
+                  {[0, 1, 2].map(i => (
+                    <div key={i} className="list-row animate-pulse">
+                      <div className="icon-chip" style={{ background: 'var(--bg2)' }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ height: 12, width: '60%', borderRadius: 6, background: 'var(--bg2)', marginBottom: 8 }} />
+                        <div style={{ height: 10, width: '90%', borderRadius: 5, background: 'var(--bg2)' }} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
 
               {/* Hasil Pencarian */}
               {searchResults && !isSearching && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-3">
-                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Hasil Pencarian</p>
-                  {searchResults.map((res: any, i: number) => {
-                    const col = bentoColors[i % bentoColors.length];
-                    return (
-                      <div 
-                        key={i}
-                        className="p-4 rounded-2xl flex flex-col gap-1"
-                        style={{ 
-                          background: col.bg.replace(/rgba\((\d+),(\d+),(\d+),([\.\d]+)\)/g, (m: string, r: string, g: string, b: string, a: string) => `rgba(${r},${g},${b},${Math.min(parseFloat(a), 0.72)})`),
-                          border: '1.5px solid rgba(255,255,255,0.7)', 
-                          boxShadow: '0 4px 16px rgba(80,100,160,0.05)' 
-                        }}
-                      >
-                        <h3 style={{ fontSize: 14, fontWeight: 800, color: col.text, letterSpacing: '-0.01em' }}>{res.title}</h3>
-                        <p style={{ fontSize: 12, color: col.text, opacity: 0.75, lineHeight: 1.5 }}>{res.desc}</p>
-                      </div>
-                    );
-                  })}
-                  {searchResults.length === 0 && (
-                    <div className="text-center py-8 text-sm text-gray-400">
-                      Tidak ada hasil yang cocok.
+                <motion.div {...fadeIn}>
+                  <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
+                    <p className="eyebrow">{t.search.results}</p>
+                    <span className="tag tag-blue">{t.search.count(searchResults.length)}</span>
+                  </div>
+                  {searchResults.length > 0 ? (
+                    <div className="list">
+                      {searchResults.map((res: any, i: number) => (
+                        <motion.div key={i} custom={i} variants={cardVariants} initial="hidden" animate="visible" className="list-row">
+                          <div className="icon-chip"><FileText size={18} strokeWidth={1.75} /></div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <h3 style={{ font: '700 14px/22px var(--font-sans)', color: 'var(--fg1)', marginBottom: 2 }}>{res.title}</h3>
+                            <p style={{ font: '400 13px/20px var(--font-sans)', color: 'var(--fg2)' }}>{res.desc}</p>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="card text-center" style={{ padding: '28px 16px', fontSize: 14, color: 'var(--fg3)' }}>
+                      {t.search.empty}
                     </div>
                   )}
                 </motion.div>
@@ -213,63 +212,44 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
       /* ── PRODUCTS ─────────────────────────────────────── */
       case 'products': {
         const defaultProducts = [
-          { title: 'BRImo', desc: 'Super app keuangan digital', icon: <Zap size={22} /> },
-          { title: 'BRI Ceria', desc: 'Paylater & kartu kredit', icon: <CreditCard size={22} /> },
-          { title: 'Tabungan Haji', desc: 'Siapkan biaya ibadah haji', icon: <Building2 size={22} /> },
-          { title: 'KUR BRI', desc: 'Modal usaha untuk UMKM', icon: <Wallet size={22} /> },
-          { title: 'BritAma', desc: 'Tabungan serba mudah', icon: <CreditCard size={22} /> },
-          { title: 'QRIS BRI', desc: 'Bayar nontunai praktis', icon: <Send size={22} /> },
+          { title: 'BRImo', desc: t.products.defaults[0], icon: <Zap size={20} strokeWidth={1.75} /> },
+          { title: 'BRI Ceria', desc: t.products.defaults[1], icon: <CreditCard size={20} strokeWidth={1.75} /> },
+          { title: 'Tabungan Haji', desc: t.products.defaults[2], icon: <Building2 size={20} strokeWidth={1.75} /> },
+          { title: 'KUR BRI', desc: t.products.defaults[3], icon: <Wallet size={20} strokeWidth={1.75} /> },
+          { title: 'BritAma', desc: t.products.defaults[4], icon: <CreditCard size={20} strokeWidth={1.75} /> },
+          { title: 'QRIS BRI', desc: t.products.defaults[5], icon: <Send size={20} strokeWidth={1.75} /> },
         ];
         const products = state.data?.length > 0 ? state.data : defaultProducts;
 
         return (
           <motion.div initial="hidden" animate="visible">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(26,26,46,0.42)', marginBottom: 2 }}>
-                  Temukan
-                </p>
-                <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em' }}>
-                  Produk BRI
-                </h2>
-              </div>
-              <Sparkles size={20} style={{ color: '#b8a9f5' }} />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
+            <SectionHeader eyebrow={t.products.eyebrow} title={t.products.title} />
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
               {products.map((p: any, i: number) => {
-                const col = bentoColors[i % bentoColors.length];
+                const featured = i === 0;
                 return (
                   <motion.div
                     key={i}
                     custom={i}
                     variants={cardVariants}
-                    whileHover={{ y: -4, scale: 1.03 }}
-                    style={{
-                      background: col.bg.replace(/rgba\((\d+),(\d+),(\d+),([\.\d]+)\)/g, (m: string, r: string, g: string, b: string, a: string) => `rgba(${r},${g},${b},${Math.min(parseFloat(a), 0.72)})`),
-                      borderRadius: 22,
-                      padding: '16px 14px',
-                      border: '1.5px solid rgba(255,255,255,0.72)',
-                      backdropFilter: 'blur(32px) saturate(200%)',
-                      WebkitBackdropFilter: 'blur(32px) saturate(200%)',
-                      boxShadow: '0 4px 20px rgba(80,100,160,0.12), inset 0 1.5px 0 rgba(255,255,255,0.85)',
-                      cursor: 'pointer',
-                      position: 'relative',
-                      overflow: 'hidden',
-                    }}
+                    className={`card hoverable flex ${featured ? 'card-hero col-span-2 items-center' : 'flex-col justify-between'}`}
+                    style={{ minHeight: featured ? 96 : 150, gap: featured ? 14 : 0, padding: featured ? 16 : 14 }}
                   >
-                    {/* Glass top highlight */}
-                    <div style={{
-                      position: 'absolute', top: 0, left: 0, right: 0, height: '42%',
-                      background: 'linear-gradient(180deg, rgba(255,255,255,0.42) 0%, transparent 100%)',
-                      borderRadius: '22px 22px 0 0', pointerEvents: 'none',
-                    }} />
-                    {/* Shimmer sweep */}
-
-                    <div style={{ color: col.accent, marginBottom: 10 }}>{p.icon || <Building2 size={22} />}</div>
-                    <h3 style={{ fontSize: 14, fontWeight: 800, color: col.text, marginBottom: 4, letterSpacing: '-0.01em' }}>{p.title}</h3>
-                    <p style={{ fontSize: 11, color: col.text, opacity: 0.65, lineHeight: 1.45 }}>{p.desc}</p>
-                    <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
-                      <ArrowRight size={14} style={{ color: col.accent }} />
+                    <div className={featured ? 'flex items-center' : ''} style={{ gap: 14, flex: featured ? 1 : undefined }}>
+                      <div
+                        className="icon-chip"
+                        style={featured ? { width: 48, height: 48, borderRadius: '22%' } : { marginBottom: 12 }}
+                      >
+                        {p.icon || <Building2 size={20} strokeWidth={1.75} />}
+                      </div>
+                      <div>
+                        {featured && <p className="eyebrow" style={{ color: 'var(--primary-light)', marginBottom: 2 }}>{t.products.featured}</p>}
+                        <h3 style={{ font: featured ? '700 18px/26px var(--font-sans)' : '700 14px/20px var(--font-sans)', color: featured ? '#fff' : 'var(--fg1)', marginBottom: 2 }}>{p.title}</h3>
+                        <p style={{ font: '400 12px/18px var(--font-sans)', color: featured ? 'var(--blue-100)' : 'var(--fg3)' }}>{p.desc}</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-end" style={{ marginTop: featured ? 0 : 8, color: featured ? '#fff' : 'var(--primary-mid)' }}>
+                      <ArrowUpRight size={featured ? 20 : 16} />
                     </div>
                   </motion.div>
                 );
@@ -282,113 +262,62 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
       /* ── LEAD FORM ────────────────────────────────────── */
       case 'lead_form': {
         return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            style={{ maxWidth: 400, margin: '0 auto', width: '100%' }}
-          >
-            <div style={{ textAlign: 'center', marginBottom: 24 }}>
-              <div style={{
-                width: 52, height: 52, borderRadius: 18,
-                background: 'linear-gradient(135deg, #e4d9ff, #cbbcf5)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                margin: '0 auto 12px',
-                border: '1.5px solid rgba(255,255,255,0.8)',
-                boxShadow: '0 4px 16px rgba(184,169,245,0.3)',
-              }}>
-                <Send size={22} style={{ color: '#9278dc' }} />
-              </div>
-              <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', marginBottom: 6 }}>
-                Tinggalkan Kontak
-              </h2>
-              <p style={{ fontSize: 13, color: 'rgba(26,26,46,0.5)', lineHeight: 1.55 }}>
-                Tim kami akan segera menghubungi Anda.
-              </p>
-            </div>
+          <motion.div {...fadeIn} style={{ maxWidth: 400, margin: '0 auto', width: '100%' }}>
+            <SectionHeader eyebrow={t.lead.eyebrow} title={t.lead.title} />
+            <p style={{ font: '400 14px/22px var(--font-sans)', color: 'var(--fg3)', marginTop: -6, marginBottom: 16 }}>
+              {t.lead.subtitle}
+            </p>
 
             <AnimatePresence mode="wait">
               {submitted ? (
                 <motion.div
                   key="success"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  style={{
-                    background: 'linear-gradient(135deg, #d0ffe8, #a8f0cc)',
-                    border: '1.5px solid rgba(255,255,255,0.8)',
-                    borderRadius: 24,
-                    padding: '28px 20px',
-                    textAlign: 'center',
-                    boxShadow: '0 6px 24px rgba(40,184,112,0.18)',
-                  }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3, ease: EASE }}
+                  className="card flex flex-col items-center text-center"
+                  style={{ padding: '28px 16px', gap: 12 }}
                 >
-                  <CheckCircle2 size={40} style={{ color: '#28b870', margin: '0 auto 10px' }} />
-                  <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0c4028', marginBottom: 6 }}>Terima Kasih!</h3>
-                  <p style={{ fontSize: 13, color: 'rgba(12,64,40,0.65)' }}>Data Anda telah berhasil kami terima.</p>
+                  <div
+                    className="flex items-center justify-center"
+                    style={{ width: 56, height: 56, borderRadius: '22%', background: 'var(--success-bg)', border: '1px solid var(--success-border)', color: 'var(--success-fg)' }}
+                  >
+                    <CheckCircle2 size={28} strokeWidth={1.75} />
+                  </div>
+                  <div>
+                    <h3 style={{ font: '700 18px/26px var(--font-sans)', color: 'var(--fg1)' }}>{t.lead.thanks}</h3>
+                    <p style={{ font: '400 14px/22px var(--font-sans)', color: 'var(--fg3)' }}>{t.lead.received}</p>
+                  </div>
                 </motion.div>
               ) : (
                 <motion.form
                   key="form"
                   onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}
-                  style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
+                  className="card"
+                  style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: 16 }}
                 >
                   {[
-                    { field: 'name', label: 'Nama Lengkap', type: 'text', placeholder: 'Masukkan nama Anda' },
-                    { field: 'phone', label: 'Nomor Telepon', type: 'tel', placeholder: '08xxxxxxxxxx' },
-                    { field: 'email', label: 'Email', type: 'email', placeholder: 'email@contoh.com' },
+                    { field: 'name', label: t.lead.name, type: 'text', placeholder: t.lead.namePlaceholder },
+                    { field: 'phone', label: t.lead.phone, type: 'tel', placeholder: '08xxxxxxxxxx' },
+                    { field: 'email', label: t.lead.email, type: 'email', placeholder: t.lead.emailPlaceholder },
                   ].map(({ field, label, type, placeholder }) => (
                     <div key={field}>
-                      <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'rgba(26,26,46,0.6)', marginBottom: 5, letterSpacing: '0.04em' }}>
-                        {label}
-                      </label>
+                      <label className="field-label" htmlFor={`lead-${field}`}>{label}</label>
                       <input
-                        className="glass-input"
+                        id={`lead-${field}`}
+                        className="input"
                         value={(formData as any)[field]}
                         onChange={e => setFormData({ ...formData, [field]: e.target.value })}
                         required
                         type={type}
                         placeholder={placeholder}
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          borderRadius: 14,
-                          border: '1.5px solid rgba(255,255,255,0.75)',
-                          background: 'rgba(255,255,255,0.52)',
-                          fontSize: 14,
-                          color: '#1a1a2e',
-                          outline: 'none',
-                          boxShadow: '0 2px 10px rgba(100,120,180,0.08)',
-                          transition: 'all 0.2s',
-                        }}
                       />
                     </div>
                   ))}
 
-                  <motion.button
-                    type="submit"
-                    whileHover={{ scale: 1.02, y: -1 }}
-                    whileTap={{ scale: 0.97 }}
-                    style={{
-                      width: '100%',
-                      padding: '14px',
-                      borderRadius: 18,
-                      border: '1.5px solid rgba(255,255,255,0.5)',
-                      background: 'linear-gradient(135deg, #b8a9f5 0%, #9278dc 100%)',
-                      color: '#fff',
-                      fontSize: 15,
-                      fontWeight: 700,
-                      letterSpacing: '0.02em',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 8,
-                      cursor: 'pointer',
-                      boxShadow: '0 8px 24px rgba(146,120,220,0.35)',
-                      marginTop: 6,
-                    }}
-                  >
-                    <Send size={16} /> Kirim Data
-                  </motion.button>
+                  <button type="submit" className="btn btn-primary btn-lg btn-block" style={{ marginTop: 4, borderRadius: 12, height: 48 }}>
+                    <Send size={16} /> {t.lead.submit}
+                  </button>
                 </motion.form>
               )}
             </AnimatePresence>
@@ -402,75 +331,29 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
 
         return (
           <motion.div initial="hidden" animate="visible">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(26,26,46,0.42)', marginBottom: 2 }}>
-                  Informasi
-                </p>
-                <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em' }}>
-                  Panduan & Tata Cara
-                </h2>
-              </div>
-              <HelpCircle size={20} style={{ color: '#b8a9f5' }} />
+            <div className="flex items-end justify-between">
+              <SectionHeader eyebrow={t.faq.eyebrow} title={t.faq.title} />
+              {steps.length > 0 && <span className="tag tag-blue" style={{ marginBottom: 16 }}>{t.faq.steps(steps.length)}</span>}
             </div>
-            
-            <div className="flex flex-col gap-3">
-              {steps.map((step: any, i: number) => {
-                const col = bentoColors[i % bentoColors.length];
-                return (
-                  <motion.div
-                    key={i}
-                    custom={i}
-                    variants={cardVariants}
-                    whileHover={{ scale: 1.01, x: 2 }}
-                    style={{
-                      background: col.bg.replace(/rgba\((\d+),(\d+),(\d+),([\.\d]+)\)/g, (m: string, r: string, g: string, b: string, a: string) => `rgba(${r},${g},${b},${Math.min(parseFloat(a), 0.72)})`),
-                      borderRadius: 18,
-                      padding: '16px 14px',
-                      border: '1.5px solid rgba(255,255,255,0.72)',
-                      backdropFilter: 'blur(32px) saturate(200%)',
-                      WebkitBackdropFilter: 'blur(32px) saturate(200%)',
-                      boxShadow: '0 4px 16px rgba(80,100,160,0.08), inset 0 1.5px 0 rgba(255,255,255,0.85)',
-                      display: 'flex',
-                      gap: 12,
-                      alignItems: 'flex-start',
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {/* Glass top highlight */}
-                    <div style={{
-                      position: 'absolute', top: 0, left: 0, right: 0, height: '42%',
-                      background: 'linear-gradient(180deg, rgba(255,255,255,0.42) 0%, transparent 100%)',
-                      borderRadius: '18px 18px 0 0', pointerEvents: 'none',
-                    }} />
-                    
-                    {/* Number Badge */}
-                    <div style={{
-                      width: 28, height: 28, flexShrink: 0, borderRadius: '50%',
-                      background: 'rgba(255,255,255,0.6)', border: '1.5px solid rgba(255,255,255,0.9)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 13, fontWeight: 800, color: col.accent,
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.05)', marginTop: 2
-                    }}>
-                      {i + 1}
-                    </div>
-                    
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{ fontSize: 14, fontWeight: 800, color: col.text, marginBottom: 4, letterSpacing: '-0.01em' }}>
-                        {step.title || 'Langkah ' + (i + 1)}
-                      </h3>
-                      <p style={{ fontSize: 12, color: col.text, opacity: 0.75, lineHeight: 1.5 }}>
-                        {step.desc}
-                      </p>
-                    </div>
-                  </motion.div>
-                );
-              })}
-              
+
+            <div className="timeline">
+              {steps.map((step: any, i: number) => (
+                <motion.div key={i} custom={i} variants={cardVariants} className="timeline-item">
+                  <div className="timeline-node">{i + 1}</div>
+                  <div className="card" style={{ flex: 1, padding: '12px 14px' }}>
+                    <h3 style={{ font: '700 14px/22px var(--font-sans)', color: 'var(--fg1)', marginBottom: 2 }}>
+                      {step.title || t.faq.step(i + 1)}
+                    </h3>
+                    <p style={{ font: '400 13px/20px var(--font-sans)', color: 'var(--fg2)' }}>
+                      {step.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+
               {steps.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '20px', color: 'rgba(26,26,46,0.5)', fontSize: 13 }}>
-                  Sedang memuat data...
+                <div className="card text-center" style={{ padding: 20, color: 'var(--fg3)', fontSize: 14 }}>
+                  {t.faq.loading}
                 </div>
               )}
             </div>
@@ -481,113 +364,49 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
       /* ── IDLE / DEFAULT dashboard ─────────────────────── */
       case 'idle':
       default: {
-        const categories = [
-          {
-            title: 'Tabungan',
-            value: 'Rp 4.500.000',
-            icon: <Building2 size={20} />,
-            col: bentoColors[0],
-            span: 1,
-          },
-          {
-            title: 'Tagihan',
-            value: '2 Jatuh Tempo',
-            icon: <CreditCard size={20} />,
-            col: bentoColors[2],
-            span: 1,
-            alert: true,
-          },
-          {
-            title: 'Investasi',
-            value: 'Portofolio Stabil',
-            icon: <Zap size={20} />,
-            col: bentoColors[4],
-            span: 1,
-          },
-          {
-            title: 'Promo Aktif',
-            value: '12 Penawaran',
-            icon: <Sparkles size={20} />,
-            col: bentoColors[3],
-            span: 1,
-          },
+        const tiles = [
+          { title: t.idle.bills, value: t.idle.billsValue, icon: <CreditCard size={18} strokeWidth={1.75} />, alert: true },
+          { title: t.idle.investment, value: t.idle.investmentValue, icon: <Zap size={18} strokeWidth={1.75} /> },
+          { title: t.idle.promos, value: t.idle.promosValue, icon: <Sparkles size={18} strokeWidth={1.75} /> },
         ];
 
         return (
           <motion.div initial="hidden" animate="visible">
-            {/* Section header */}
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(26,26,46,0.42)', marginBottom: 2 }}>
-                  Overview
-                </p>
-                <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em' }}>
-                  Layanan Utama
-                </h2>
-              </div>
-              <HelpCircle size={18} style={{ color: 'rgba(26,26,46,0.3)' }} />
-            </div>
+            <SectionHeader eyebrow={t.idle.eyebrow} title={t.idle.title} />
 
-            {/* Bento grid */}
-            <div className="grid grid-cols-2 gap-3">
-              {categories.map((c, i) => (
+            {/* Balance card */}
+            <motion.div custom={0} variants={cardVariants} className="card hoverable" style={{ padding: 16 }}>
+              <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
+                <div className="flex items-center" style={{ gap: 10 }}>
+                  <div className="icon-chip" style={{ width: 32, height: 32 }}><Building2 size={18} strokeWidth={1.75} /></div>
+                  <p className="eyebrow">{t.idle.savings}</p>
+                </div>
+                <ArrowUpRight size={18} style={{ color: 'var(--primary-mid)' }} />
+              </div>
+              <p className="stat">Rp 4.500.000</p>
+            </motion.div>
+
+            {/* Tiles */}
+            <div className="grid grid-cols-3" style={{ gap: 10, marginTop: 10 }}>
+              {tiles.map((c, i) => (
                 <motion.div
                   key={i}
-                  custom={i}
+                  custom={i + 1}
                   variants={cardVariants}
-                  whileHover={{ y: -4, scale: 1.03 }}
-                  style={{
-                    background: c.col.bg.replace('0.72', '0.55'),
-                    backdropFilter: 'blur(34px) saturate(210%)',
-                    WebkitBackdropFilter: 'blur(34px) saturate(210%)',
-                    borderRadius: 22,
-                    padding: '18px 16px',
-                    border: '1.5px solid rgba(255,255,255,0.75)',
-                    boxShadow: '0 4px 22px rgba(80,100,160,0.12), inset 0 1.5px 0 rgba(255,255,255,0.85)',
-                    cursor: 'pointer',
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}
+                  className="card hoverable flex flex-col justify-between relative"
+                  style={{ minHeight: 118, padding: 12, gap: 10 }}
                 >
-                  {/* Glass highlight */}
-                  <div style={{
-                    position: 'absolute', top: 0, left: 0, right: 0, height: '40%',
-                    background: 'linear-gradient(180deg, rgba(255,255,255,0.44) 0%, transparent 100%)',
-                    borderRadius: '22px 22px 0 0', pointerEvents: 'none',
-                  }} />
-                  {/* Shimmer */}
-
-
-                  {/* Alert dot */}
                   {c.alert && (
-                    <motion.div
-                      animate={{ scale: [1, 1.3, 1] }}
-                      transition={{ repeat: Infinity, duration: 1.5 }}
-                      style={{
-                        position: 'absolute', top: 12, right: 12,
-                        width: 8, height: 8, borderRadius: '50%',
-                        background: '#f5b8d5',
-                        boxShadow: '0 0 8px rgba(245,184,213,0.7)',
-                      }}
+                    <span
+                      className="absolute rounded-full"
+                      style={{ top: 12, right: 12, width: 8, height: 8, background: 'var(--danger-fg)' }}
+                      aria-label={t.idle.billsAlert}
                     />
                   )}
-
-                  <div style={{ color: c.col.accent, marginBottom: 12 }}>{c.icon}</div>
-                  <h4 style={{ fontSize: 13, fontWeight: 700, color: c.col.text, marginBottom: 4, letterSpacing: '-0.01em' }}>
-                    {c.title}
-                  </h4>
-                  <div style={{
-                    display: 'inline-block',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: c.col.accent,
-                    background: 'rgba(255,255,255,0.5)',
-                    border: '1px solid rgba(255,255,255,0.7)',
-                    borderRadius: 10,
-                    padding: '3px 8px',
-                    letterSpacing: '0.02em',
-                  }}>
-                    {c.value}
+                  <div className="icon-chip" style={{ width: 32, height: 32 }}>{c.icon}</div>
+                  <div>
+                    <p style={{ font: '500 12px/16px var(--font-sans)', color: 'var(--fg3)', marginBottom: 2 }}>{c.title}</p>
+                    <p style={{ font: '700 13px/18px var(--font-sans)', color: c.alert ? 'var(--danger-fg)' : 'var(--fg1)' }}>{c.value}</p>
                   </div>
                 </motion.div>
               ))}
@@ -597,37 +416,26 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
             <motion.div
               custom={4}
               variants={cardVariants}
-              style={{
-                marginTop: 12,
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.48) 0%, rgba(220,210,255,0.32) 100%)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                border: '1.5px solid rgba(255,255,255,0.75)',
-                borderRadius: 20,
-                padding: '14px 18px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                cursor: 'pointer',
-                boxShadow: '0 4px 16px rgba(100,120,180,0.1)',
-              }}
+              className="card hoverable flex items-center justify-between"
+              style={{ marginTop: 12, gap: 12, background: 'var(--blue-50)', borderColor: 'var(--blue-200)' }}
             >
-              <div>
-                <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(26,26,46,0.45)', marginBottom: 2, letterSpacing: '0.04em' }}>
-                  Butuh bantuan?
-                </p>
-                <p style={{ fontSize: 14, fontWeight: 700, color: '#1a1a2e' }}>
-                  Tanya Bambang langsung 🎙️
-                </p>
+              <div className="flex items-center" style={{ gap: 12 }}>
+                <div
+                  className="flex items-center justify-center flex-shrink-0"
+                  style={{ width: 40, height: 40, borderRadius: '22%', background: 'var(--primary-deep)', color: '#fff' }}
+                >
+                  <Mic size={18} strokeWidth={1.75} />
+                </div>
+                <div>
+                  <p style={{ font: '400 12px/18px var(--font-sans)', color: 'var(--blue-700)' }}>
+                    {t.idle.helpEyebrow}
+                  </p>
+                  <p style={{ font: '700 14px/22px var(--font-sans)', color: 'var(--fg1)' }}>
+                    {t.idle.helpTitle}
+                  </p>
+                </div>
               </div>
-              <div style={{
-                width: 36, height: 36, borderRadius: 12,
-                background: 'linear-gradient(135deg, #b8a9f5, #9278dc)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 4px 12px rgba(146,120,220,0.3)',
-              }}>
-                <ArrowRight size={16} style={{ color: '#fff' }} />
-              </div>
+              <ArrowRight size={18} style={{ color: 'var(--primary-deep)' }} />
             </motion.div>
           </motion.div>
         );
@@ -637,7 +445,7 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="flex-1 flex flex-col justify-start pb-4">
+      <div className="flex-1 flex flex-col justify-start">
         {renderContent()}
       </div>
     </div>

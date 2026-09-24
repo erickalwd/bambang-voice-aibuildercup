@@ -25,16 +25,40 @@ emb_client = OpenAI(
 )
 emb_model = os.getenv("EMBEDDING_MODEL")
 
+# Per-language additions to the system prompt and the opening greeting.
+# The base instructions stay in Indonesian; the directive below controls
+# the language Bambang speaks and the text it sends to the UI.
+LANGUAGE_PROFILES = {
+    "id": {
+        "directive": """
+[BAHASA]
+Selalu berbicara dan menjawab dalam Bahasa Indonesia. Semua teks `title` dan `desc` yang Anda kirim lewat tool `set_ui_state` juga WAJIB dalam Bahasa Indonesia.""",
+        "greeting": "Halo! Tolong sapa saya dengan ramah dan lengkap, perkenalkan dirimu sebagai Bambang dari Bank BRI, dan tanyakan apa yang bisa dibantu hari ini.",
+    },
+    "en": {
+        "directive": """
+[LANGUAGE — OVERRIDES EVERYTHING ABOVE]
+The customer has chosen ENGLISH. Always speak and respond in natural, fluent English, even though these instructions and the knowledge base are written in Indonesian — translate the knowledge base content when you answer.
+- Every `title` and `desc` you send through `set_ui_state` MUST be written in English. Keep official product names as they are (BritAma, Simpedes, BRImo, KUR, etc.).
+- In the fraud-alert case, say in English: "For your security, I have temporarily frozen your outgoing transactions. Please stay calm..." Never say you are unable to block it.
+- When asking for fraud confirmation, ask in English: "Have you already clicked the link or shared your OTP or password?"
+- Address the customer as "Sir/Madam" instead of "Bapak/Ibu".
+- If the customer switches to Indonesian, you may follow them, but default to English.""",
+        "greeting": "Hello! Please greet me warmly in English, introduce yourself as Bambang, the virtual assistant from Bank BRI, and ask how you can help me today.",
+    },
+}
+
 class AudioOrchestrator:
     def __init__(self):
         self.sessions: Dict[str, Any] = {}
         self.genai_client = genai.Client(api_key=GEMINI_API_KEY)
         print("Initialized Gemini Live API Orchestrator (Native Audio RAG)")
 
-    async def start_session(self, websocket) -> str:
+    async def start_session(self, websocket, lang: str = "id") -> str:
         session_id = "sess_" + os.urandom(4).hex()
         self.sessions[session_id] = {
             "client_ws": websocket,
+            "lang": lang if lang in LANGUAGE_PROFILES else "id",
             "tasks": [],
             "gemini_session": None,
             "is_active": True
@@ -114,6 +138,10 @@ JIKA ANDA TIDAK MEMANGGIL TOOL INI, PENGGUNA TIDAK BISA MELIHAT LAYAR DENGAN BEN
    - JANGAN langsung memblokir jika pengguna baru bercerita. LAKUKAN KONFIRMASI DULU! Tanyakan dengan tenang: "Apakah Bapak/Ibu sudah terlanjur mengklik link tersebut atau memberikan kode OTP/Password?"
    - HANYA JIKA nasabah mengonfirmasi "Iya saya sudah klik" atau "Iya saya sudah kasih OTP" ATAU mereka sangat panik karena sedang dipandu penipu: SEGERA panggil tool `set_ui_state` dengan state="fraud_alert". 
    - KETIKA Anda memanggil state="fraud_alert", ANDA WAJIB secara verbal mengatakan: "Baik Bapak/Ibu, demi keamanan, saat ini saya telah membantu membekukan transaksi keluar Anda untuk sementara waktu. Harap tenang..." JANGAN PERNAH MENGATAKAN "Saya tidak bisa memblokir", karena Anda bertindak sebagai sistem AI yang bisa mengendalikan aplikasi."""
+            lang_profile = LANGUAGE_PROFILES[session["lang"]]
+            system_instruction_text += "\n" + lang_profile["directive"]
+            print(f"Session {session_id} language: {session['lang']}")
+
             config = types.LiveConnectConfig(
                 response_modalities=["AUDIO"],
                 speech_config=types.SpeechConfig(
@@ -133,7 +161,7 @@ JIKA ANDA TIDAK MEMANGGIL TOOL INI, PENGGUNA TIDAK BISA MELIHAT LAYAR DENGAN BEN
                 
                 # Send Initial Greeting
                 # We instruct Gemini to give a longer, formal greeting as Bambang.
-                await gemini_session.send(input="Halo! Tolong sapa saya dengan ramah dan lengkap, perkenalkan dirimu sebagai Bambang dari Bank BRI, dan tanyakan apa yang bisa dibantu hari ini.", end_of_turn=True)
+                await gemini_session.send(input=lang_profile["greeting"], end_of_turn=True)
                 
                 t1 = asyncio.create_task(self.forward_client_to_gemini(session_id))
                 t2 = asyncio.create_task(self.forward_gemini_to_client(session_id))

@@ -1,143 +1,466 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
 @import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════
+   BRI DESIGN SYSTEM — tokens
+   Source: BRI Design System (claude.ai/design) · tokens/*.css
+   Solid fills only — no gradients, no glass, no backdrop blur.
+   ═══════════════════════════════════════════════════════════════ */
 
 @layer base {
   :root {
-    --background: #d6e4f5;
-    --foreground: #1a1a2e;
+    /* Brand blues */
+    --primary-deep: #0857C3;   /* Nusantara Blue */
+    --primary-mid: #307FE2;    /* Cakrawala Blue */
+    --primary-light: #71C5E8;  /* Mentari Blue */
 
-    /* ── Liquid Glass tokens ── */
-    --glass-bg:        rgba(255, 255, 255, 0.22);
-    --glass-bg-mid:    rgba(255, 255, 255, 0.32);
-    --glass-bg-strong: rgba(255, 255, 255, 0.48);
-    --glass-border:    rgba(255, 255, 255, 0.68);
-    --glass-highlight: rgba(255, 255, 255, 0.55);
-    --glass-shadow:    0 8px 32px rgba(80, 100, 160, 0.18);
-    --glass-inner:     inset 0 1.5px 0 rgba(255,255,255,0.85), inset 0 -1px 0 rgba(255,255,255,0.15);
+    /* Extended blue scale */
+    --blue-50: #ECF3FE;
+    --blue-100: #D6E6FC;
+    --blue-200: #A9C8F6;
+    --blue-600: #02519C;
+    --blue-700: #033782;
+    --blue-accent-1: #0B66E7;  /* hero hover */
+    --blue-accent-2: #0157D1;  /* hero fill */
+    --blue-chip: #3479DA;      /* chips on hero */
 
-    /* ── Pastel accents ── */
-    --primary:         #6ea8f7;
-    --primary-dark:    #3a7bd5;
-    --secondary:       #b8a9f5;
-    --accent:          #f5b8d5;
-    --accent-yellow:   #f5e4a0;
-    --accent-mint:     #a3f5d8;
-    --accent-coral:    #f5b8a0;
+    /* Neutrals (slate) */
+    --fg1: #1E293B;
+    --fg2: #475569;
+    --fg3: #64748B;
+    --fg5: #94A3B8;
+    --bg0: #FFFFFF;
+    --bg1: #F8FAFC;
+    --bg2: #F1F5F9;
+    --border-1: #EAEBEB;
+    --border-2: #E2E8F0;
+    --border-3: #F0F0F0;
+    --border-field: #D9D9D9;
 
-    /* ── Gradient bg ── */
-    --grad-start: #bdd5f5;
-    --grad-mid:   #cdc0f0;
-    --grad-end:   #f0c0da;
+    /* Semantic */
+    --success-fg: #237804;
+    --success-bg: #F6FFED;
+    --success-border: #B7EB8F;
+    --danger-fg: #A8071A;
+    --danger-bg: #FFF2F0;
+    --danger-border: #FFCCC7;
+    --warning-fg: #D46B08;
+    --warning-bg: #FFF7E6;
+    --warning-border: #FFD591;
+
+    /* Radii */
+    --r-md: 8px;
+    --r-lg: 12px;
+    --r-xl: 16px;
+    --r-pill: 999px;
+
+    /* Elevation */
+    --shadow-card: 0 1px 2px rgba(15, 23, 42, .04);
+    --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, .1);
+    --shadow-pop: 0 6px 16px rgba(15, 23, 42, .08);
+    --focus-ring: 0 0 0 2px rgba(8, 87, 195, .15);
+
+    /* Motion */
+    --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+    --t-fast: 200ms;
+    --t-med: 300ms;
+
+    --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
 }
 
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
-  * { border-color: var(--glass-border); }
 
   html { height: 100%; }
 
   body {
     min-height: 100%;
-    background:
-      radial-gradient(ellipse at 10% 10%, rgba(189, 213, 245, 0.85) 0%, transparent 55%),
-      radial-gradient(ellipse at 90% 20%, rgba(205, 192, 240, 0.75) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 80%, rgba(240, 192, 218, 0.7) 0%, transparent 55%),
-      radial-gradient(ellipse at 80% 90%, rgba(163, 245, 216, 0.5) 0%, transparent 45%),
-      linear-gradient(145deg, #bdd5f5 0%, #cdc0f0 50%, #f0c0da 100%);
-    background-attachment: fixed;
-    color: var(--foreground);
-    font-family: 'DM Sans', sans-serif;
+    background: var(--bg1);
+    color: var(--fg2);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 22px;
     -webkit-font-smoothing: antialiased;
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   LIQUID GLASS SYSTEM
+   COMPONENTS — class layer mirrored from components/*.css
    ═══════════════════════════════════════════════════════════════ */
 
-/* Base glass — very transparent, strong blur */
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(28px) saturate(200%) brightness(1.08);
-  -webkit-backdrop-filter: blur(28px) saturate(200%) brightness(1.08);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow), var(--glass-inner);
+/* Eyebrow — small uppercase section label */
+.eyebrow {
+  font: 700 12px/16px var(--font-sans);
+  color: var(--fg3);
+  text-transform: uppercase;
+  letter-spacing: .04em;
 }
 
-/* Medium glass — slightly more opaque */
-.glass-mid {
-  background: var(--glass-bg-mid);
-  backdrop-filter: blur(32px) saturate(220%) brightness(1.06);
-  -webkit-backdrop-filter: blur(32px) saturate(220%) brightness(1.06);
-  border: 1.5px solid var(--glass-border);
-  box-shadow: 0 6px 28px rgba(80,100,160,0.16), var(--glass-inner);
+.section-title {
+  font: 700 20px/28px var(--font-sans);
+  color: var(--fg1);
 }
 
-/* Strong glass — panels and cards */
-.glass-strong {
-  background: var(--glass-bg-strong);
-  backdrop-filter: blur(40px) saturate(240%) brightness(1.05);
-  -webkit-backdrop-filter: blur(40px) saturate(240%) brightness(1.05);
-  border: 1.5px solid var(--glass-border);
-  box-shadow: 0 12px 40px rgba(80,100,160,0.2), var(--glass-inner);
+/* Card */
+.card {
+  background: var(--bg0);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-xl);
+  padding: 14px;
+  box-shadow: var(--shadow-card);
+  transition: transform var(--t-med) var(--ease-standard),
+              box-shadow var(--t-med) var(--ease-standard),
+              border-color var(--t-med) var(--ease-standard),
+              background-color var(--t-med) var(--ease-standard);
+}
+.card.hoverable { cursor: pointer; }
+.card.hoverable:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--blue-accent-2);
 }
 
-/* Card: rounded glass with top shimmer */
-.glass-card {
-  background: var(--glass-bg-mid);
-  backdrop-filter: blur(36px) saturate(220%) brightness(1.06);
-  -webkit-backdrop-filter: blur(36px) saturate(220%) brightness(1.06);
-  border: 1.5px solid var(--glass-border);
-  border-radius: 24px;
-  box-shadow: 0 4px 24px rgba(80,100,160,0.14), var(--glass-inner);
+/* Hero card — solid brand fill, inverted type */
+.card-hero {
+  background: var(--blue-accent-2);
+  border-color: var(--blue-accent-2);
+  color: #fff;
+}
+.card-hero.hoverable:hover {
+  background: var(--blue-accent-1);
+  border-color: var(--blue-accent-1);
+}
+
+/* Icon chip inside cards */
+.icon-chip {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-md);
+  background: var(--blue-50);
+  color: var(--blue-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.card-hero .icon-chip { background: var(--blue-chip); color: #fff; }
+
+/* Buttons */
+.btn {
+  font: 600 14px/20px var(--font-sans);
+  padding: 8px 16px;
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all var(--t-fast) var(--ease-standard);
+}
+.btn-primary { background: var(--primary-deep); color: #fff; border-color: var(--primary-deep); }
+.btn-primary:hover { background: var(--blue-accent-1); border-color: var(--blue-accent-1); }
+.btn-primary:active { background: var(--blue-600); border-color: var(--blue-600); }
+.btn-default { background: #fff; color: var(--fg1); border-color: var(--border-field); }
+.btn-default:hover { color: var(--primary-deep); border-color: var(--primary-deep); }
+.btn-default.is-danger { color: var(--danger-fg); border-color: var(--danger-border); }
+.btn-lg { padding: 12px 16px; font-size: 15px; }
+.btn-block { width: 100%; }
+
+/* Icon button — neutral chip */
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  background: var(--bg0);
+  border: 1px solid var(--border-2);
+  color: var(--fg3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  overflow: hidden;
+  cursor: pointer;
+  transition: all var(--t-fast) var(--ease-standard);
 }
-.glass-card::before {
+.btn-icon:hover { color: var(--fg1); border-color: var(--border-field); }
+
+/* Tags */
+.tag {
+  font: 600 11px/16px var(--font-sans);
+  padding: 2px 10px;
+  border-radius: var(--r-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.tag-blue { background: var(--blue-50); color: var(--primary-deep); border: 1px solid var(--blue-200); }
+.tag-red { background: var(--danger-bg); color: var(--danger-fg); border: 1px solid var(--danger-border); }
+.tag-slate { background: var(--bg2); color: var(--fg2); border: 1px solid var(--border-2); }
+.tag-on-hero { background: var(--blue-chip); color: #fff; }
+
+/* Suggestion chip — interactive tag */
+.chip-btn {
+  font: 500 13px/20px var(--font-sans);
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: var(--bg0);
+  color: var(--primary-deep);
+  border: 1px solid var(--blue-200);
+  cursor: pointer;
+  transition: all var(--t-fast) var(--ease-standard);
+}
+.chip-btn:hover { background: var(--blue-50); border-color: var(--primary-deep); }
+
+/* Alerts */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: var(--r-lg);
+  padding: 12px 14px;
+  font: 400 14px/22px var(--font-sans);
+}
+.alert-info { background: var(--blue-50); border: 1px solid var(--blue-200); color: var(--blue-700); }
+.alert-success { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success-fg); }
+.alert-danger { background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger-fg); }
+
+/* Form fields */
+.field-label {
+  display: block;
+  font: 500 13px/20px var(--font-sans);
+  color: var(--fg1);
+  margin-bottom: 6px;
+}
+.input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-field);
+  background: var(--bg0);
+  font: 400 14px/22px var(--font-sans);
+  color: var(--fg1);
+  outline: none;
+  transition: border-color var(--t-fast) var(--ease-standard), box-shadow var(--t-fast) var(--ease-standard);
+}
+.input::placeholder { color: var(--fg5); }
+.input:focus { border-color: var(--primary-deep); box-shadow: var(--focus-ring); }
+/* Mobile search goes fully rounded */
+.input-search { border-radius: var(--r-pill); padding-left: 42px; }
+
+/* ═══════════════════════════════════════════════════════════════
+   APP LAYOUT — brand hero + content sheet
+   ═══════════════════════════════════════════════════════════════ */
+
+.hero {
+  background: var(--primary-deep);
+  color: #fff;
+  padding: 0 20px 56px;
+}
+.hero-eyebrow {
+  font: 700 12px/16px var(--font-sans);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--primary-light);
+}
+.hero-title {
+  font: 600 30px/36px var(--font-sans);
+  letter-spacing: -.01em;
+  color: #fff;
+}
+.hero-title .muted { color: var(--blue-200); }
+
+/* Content sheet overlapping the hero */
+.sheet {
+  position: relative;
+  margin-top: -28px;
+  background: var(--bg1);
+  border-radius: 28px 28px 0 0;
+  padding: 24px 16px 112px;
+  flex: 1;
+}
+.sheet::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 44%;
-  background: linear-gradient(180deg, var(--glass-highlight) 0%, transparent 100%);
-  border-radius: 24px 24px 0 0;
-  pointer-events: none;
+  top: 10px;
+  left: 50%;
+  width: 36px;
+  height: 4px;
+  margin-left: -18px;
+  border-radius: var(--r-pill);
+  background: var(--border-2);
 }
 
-/* Pill: compact glass element */
-.glass-pill {
-  background: var(--glass-bg-mid);
-  backdrop-filter: blur(30px) saturate(210%) brightness(1.07);
-  -webkit-backdrop-filter: blur(30px) saturate(210%) brightness(1.07);
-  border: 1.5px solid var(--glass-border);
-  box-shadow: 0 4px 18px rgba(80,100,160,0.14), var(--glass-inner);
+/* Controls placed on the blue hero */
+.btn-on-brand {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  background: var(--blue-600);
+  color: #fff;
+  border: 1px solid var(--blue-600);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: all var(--t-fast) var(--ease-standard);
 }
+.btn-on-brand:hover { background: var(--blue-700); border-color: var(--blue-700); }
 
-/* Orb: the voice button glass sphere */
-.glass-orb {
-  background: rgba(255, 255, 255, 0.28);
-  backdrop-filter: blur(40px) saturate(260%) brightness(1.12);
-  -webkit-backdrop-filter: blur(40px) saturate(260%) brightness(1.12);
-  border: 1.5px solid rgba(255, 255, 255, 0.78);
-  box-shadow:
-    0 16px 48px rgba(80,100,160,0.2),
-    0 2px 8px rgba(255,255,255,0.4),
-    inset 0 2px 0 rgba(255,255,255,0.9),
-    inset 0 -2px 8px rgba(180,160,220,0.15);
+.pill-on-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: var(--blue-600);
+  color: #fff;
+  font: 500 13px/20px var(--font-sans);
+  border: 1px solid var(--blue-600);
+  transition: all var(--t-fast) var(--ease-standard);
 }
+button.pill-on-brand { cursor: pointer; }
+button.pill-on-brand:hover { background: var(--blue-700); border-color: var(--blue-700); }
+.pill-on-brand.is-off { background: #fff; color: var(--danger-fg); border-color: #fff; }
 
-/* Input glass */
-.glass-input {
-  background: rgba(255, 255, 255, 0.28);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1.5px solid rgba(255,255,255,0.72);
-  box-shadow: 0 2px 12px rgba(80,100,160,0.1), inset 0 1px 0 rgba(255,255,255,0.8);
+.logo-on-brand { filter: brightness(0) invert(1); }
+
+/* ═══════════════════════════════════════════════════════════════
+   BRAND GRAPHIC FRAME — voice control
+   Rounded square from the logo geometry: radius 22%, clear space 1/8.
+   ═══════════════════════════════════════════════════════════════ */
+
+.gframe {
+  position: relative;
+  box-sizing: border-box;
+  border: 4px solid #fff;
+  border-radius: 22%;
+  padding: 12.5%;
+  transition: border-color var(--t-med) var(--ease-standard);
 }
-.glass-input:focus {
-  border-color: rgba(110, 168, 247, 0.7);
-  box-shadow: 0 0 0 3px rgba(110,168,247,0.18), inset 0 1px 0 rgba(255,255,255,0.9);
+.gframe-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 13%;
+  display: grid;
+  place-items: center;
+  transition: background-color var(--t-med) var(--ease-standard);
+}
+.gframe-btn {
+  background: none;
+  cursor: pointer;
   outline: none;
+}
+.gframe-btn:focus-visible { box-shadow: 0 0 0 4px rgba(113, 197, 232, .45); }
+
+/* Live mic echo — a second frame expanding outward */
+@keyframes frame-echo {
+  0%   { opacity: .7; transform: scale(1); }
+  100% { opacity: 0;  transform: scale(1.18); }
+}
+.gframe-echo {
+  position: absolute;
+  inset: -4px;
+  border: 2px solid var(--primary-light);
+  border-radius: 22%;
+  pointer-events: none;
+  animation: frame-echo 1.8s var(--ease-standard) infinite;
+}
+.gframe-echo.delay { animation-delay: .9s; }
+
+/* ═══════════════════════════════════════════════════════════════
+   FLOATING BOTTOM NAV
+   ═══════════════════════════════════════════════════════════════ */
+
+.bottom-nav {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  background: var(--bg0);
+  border: 1px solid var(--border-2);
+  border-radius: 20px;
+  box-shadow: var(--shadow-pop);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  gap: 4px;
+}
+.nav-item {
+  height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-radius: 14px;
+  font: 600 13px/20px var(--font-sans);
+  color: var(--fg3);
+  cursor: pointer;
+  transition: all var(--t-med) var(--ease-standard);
+}
+.nav-item:hover { color: var(--primary-deep); background: var(--blue-50); }
+.nav-item.is-active { flex: 1; background: var(--primary-deep); color: #fff; }
+.nav-item .nav-label { display: none; }
+.nav-item.is-active .nav-label { display: inline; }
+
+/* ═══════════════════════════════════════════════════════════════
+   PANEL PATTERNS
+   ═══════════════════════════════════════════════════════════════ */
+
+/* List container — rounded, outer border, row dividers only */
+.list {
+  background: var(--bg0);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+}
+.list-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-top: 1px solid var(--border-3);
+  transition: background-color var(--t-fast) var(--ease-standard);
+}
+.list-row:first-child { border-top: 0; }
+.list-row:hover { background: var(--blue-50); }
+
+/* Timeline — for FAQ steps */
+.timeline { position: relative; display: flex; flex-direction: column; gap: 12px; }
+.timeline-item { position: relative; display: flex; gap: 14px; }
+.timeline-node {
+  position: relative;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 22%;
+  background: var(--primary-deep);
+  color: #fff;
+  font: 700 14px/20px var(--font-sans);
+  display: grid;
+  place-items: center;
+}
+.timeline-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 32px;
+  bottom: -12px;
+  width: 2px;
+  background: var(--blue-100);
+}
+
+/* Stat number */
+.stat {
+  font: 700 26px/32px var(--font-sans);
+  letter-spacing: -.01em;
+  color: var(--primary-deep);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -147,61 +470,34 @@
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ═══════════════════════════════════════════════════════════════
-   ANIMATIONS
-   ═══════════════════════════════════════════════════════════════ */
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-8px); }
+@media (prefers-reduced-motion: reduce) {
+  .gframe-echo { animation: none; opacity: .4; }
 }
-@keyframes glow-pulse {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50%       { opacity: 0.75; transform: scale(1.14); }
-}
-
-@keyframes pulse-ring {
-  0%   { transform: scale(0.85); opacity: 0.7; }
-  80%  { transform: scale(1.55); opacity: 0; }
-  100% { transform: scale(1.55); opacity: 0; }
-}
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes liquid-wave {
-  0%, 100% { border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%; }
-  33%       { border-radius: 45% 55% 40% 60% / 60% 40% 55% 45%; }
-  66%       { border-radius: 55% 45% 60% 40% / 40% 55% 45% 60%; }
-}
-
-.animate-float { animation: float 4.5s ease-in-out infinite; }
-.animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
-.animate-fade-up { animation: fade-up 0.45s cubic-bezier(0.22,1,0.36,1) forwards; }
-.animate-spin-slow { animation: spin-slow 16s linear infinite; }
-.animate-liquid { animation: liquid-wave 6s ease-in-out infinite; }
 
 /* ═══════════════════════════════════════════════════════════════
-   LISTENING PULSE RINGS
+   LANGUAGE SWITCH — segmented pill on the brand hero (ID | EN)
    ═══════════════════════════════════════════════════════════════ */
 
-.listening-ring::before {
-  content: '';
-  position: absolute;
-  inset: -14px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(110, 168, 247, 0.7);
-  animation: pulse-ring 2.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+.lang-switch {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  height: 40px;
+  border-radius: var(--r-pill);
+  background: var(--blue-600);
 }
-.listening-ring::after {
-  content: '';
-  position: absolute;
-  inset: -28px;
-  border-radius: 50%;
-  border: 1px solid rgba(110, 168, 247, 0.4);
-  animation: pulse-ring 2.2s 0.55s infinite cubic-bezier(0.4, 0, 0.6, 1);
+.lang-switch button {
+  min-width: 38px;
+  padding: 0 10px;
+  border-radius: var(--r-pill);
+  font: 700 12px/16px var(--font-sans);
+  letter-spacing: .04em;
+  color: var(--blue-200);
+  cursor: pointer;
+  transition: all var(--t-med) var(--ease-standard);
 }
+.lang-switch button:hover:not(:disabled) { color: #fff; }
+.lang-switch button.is-active { background: #fff; color: var(--primary-deep); }
+.lang-switch button:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--primary-light); }
+.lang-switch.is-locked { opacity: .6; }
+.lang-switch.is-locked button { cursor: not-allowed; }

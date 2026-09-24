@@ -56,6 +56,8 @@ def search_knowledge(q: str):
             })
         return {"results": items}
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return {"error": str(e)}
     finally:
         db.close()
@@ -63,7 +65,8 @@ def search_knowledge(q: str):
 @app.websocket("/ws/voice")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    session_id = await orchestrator.start_session(websocket)
+    lang = websocket.query_params.get("lang", "id")
+    session_id = await orchestrator.start_session(websocket, lang=lang)
     try:
         # Prevent app.py from closing the websocket, let the orchestrator background task run
         # Wait indefinitely until the client disconnects or backend closes it

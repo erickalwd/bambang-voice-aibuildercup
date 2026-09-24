@@ -4,8 +4,18 @@ import React, { useState, useEffect } from 'react';
 import VoiceAgent from '@/components/VoiceAgent';
 import DynamicPanel from '@/components/DynamicPanel';
 import { Home as HomeIcon, Settings, Search, Bell } from 'lucide-react';
+import { LanguageProvider, useI18n, type Lang } from '@/lib/i18n';
 
 export default function Home() {
+  return (
+    <LanguageProvider>
+      <HomeScreen />
+    </LanguageProvider>
+  );
+}
+
+function HomeScreen() {
+  const { lang, setLang, t, locked } = useI18n();
   const [panelState, setPanelState] = useState<{
     type: 'idle' | 'products' | 'faq' | 'faq_steps' | 'lead_form' | 'search';
     data?: any;
@@ -14,173 +24,134 @@ export default function Home() {
   const [greeting, setGreeting] = useState('');
   const [currentDate, setCurrentDate] = useState('');
 
-
-
   useEffect(() => {
     const h = new Date().getHours();
-    if (h < 11) setGreeting('Selamat Pagi');
-    else if (h < 15) setGreeting('Selamat Siang');
-    else if (h < 18) setGreeting('Selamat Sore');
-    else setGreeting('Selamat Malam');
+    if (h < 11) setGreeting(t.greeting.morning);
+    else if (h < 15) setGreeting(t.greeting.noon);
+    else if (h < 18) setGreeting(t.greeting.afternoon);
+    else setGreeting(t.greeting.evening);
 
     const d = new Date();
     setCurrentDate(
-      d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })
+      d.toLocaleDateString(t.locale, { weekday: 'long', day: 'numeric', month: 'long' })
     );
-  }, []);
+  }, [t]);
+
+  const isNavActive = (key: string) =>
+    key === 'search' ? panelState.type === 'search' : key === 'home' && panelState.type !== 'search';
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-0 md:p-6">
-      {/* ── Ambient liquid blobs (fixed, behind everything) ── */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Top-left sky blob */}
-        <div style={{ position:'absolute', top:'-20%', left:'-15%', width:'75vw', height:'75vw', borderRadius:'50%', background:'radial-gradient(circle, rgba(189,213,245,0.9) 0%, transparent 68%)', filter:'blur(55px)', animation:'glow-pulse 9s ease-in-out infinite' }} />
-        {/* Top-right lavender blob */}
-        <div style={{ position:'absolute', top:'-5%', right:'-20%', width:'65vw', height:'65vw', borderRadius:'50%', background:'radial-gradient(circle, rgba(205,192,240,0.85) 0%, transparent 65%)', filter:'blur(50px)', animation:'glow-pulse 11s ease-in-out infinite 1.5s reverse' }} />
-        {/* Bottom-center rose blob */}
-        <div style={{ position:'absolute', bottom:'-15%', left:'15%', width:'70vw', height:'70vw', borderRadius:'50%', background:'radial-gradient(circle, rgba(240,192,218,0.8) 0%, transparent 65%)', filter:'blur(60px)', animation:'glow-pulse 13s ease-in-out infinite 3s' }} />
-        {/* Mid mint accent */}
-        <div style={{ position:'absolute', top:'40%', right:'-10%', width:'40vw', height:'40vw', borderRadius:'50%', background:'radial-gradient(circle, rgba(163,245,216,0.5) 0%, transparent 70%)', filter:'blur(40px)', animation:'glow-pulse 7s ease-in-out infinite 0.5s' }} />
-        {/* Golden accent */}
-        <div style={{ position:'absolute', bottom:'20%', left:'-5%', width:'35vw', height:'35vw', borderRadius:'50%', background:'radial-gradient(circle, rgba(245,228,160,0.45) 0%, transparent 70%)', filter:'blur(36px)', animation:'glow-pulse 8s ease-in-out infinite 2s reverse' }} />
-      </div>
-
+    <div className="min-h-screen flex items-center justify-center p-0 md:p-6" style={{ background: 'var(--bg2)' }}>
       {/* Phone Frame */}
       <div
-        className="w-full h-[100dvh] md:h-[900px] max-w-[430px] overflow-hidden flex flex-col relative no-scrollbar"
-        style={{
-          background: 'rgba(255,255,255,0.18)',
-          backdropFilter: 'blur(2px)',
-          borderRadius: '0 0 0 0',
-        }}
+        className="phone-frame w-full h-[100dvh] md:h-[900px] max-w-[430px] overflow-hidden flex flex-col relative"
+        style={{ background: 'var(--bg1)' }}
       >
-        {/* MD screen: show as phone frame */}
         <style>{`
           @media (min-width: 768px) {
             .phone-frame {
-              border-radius: 48px !important;
-              border: 10px solid rgba(255,255,255,0.4) !important;
-              box-shadow: 0 40px 80px rgba(100,120,180,0.25), inset 0 1px 0 rgba(255,255,255,0.6) !important;
+              border-radius: 36px;
+              border: 1px solid var(--border-2);
+              box-shadow: 0 20px 40px rgba(15, 23, 42, .12);
             }
           }
         `}</style>
 
-        {/* ── Header ─────────────────────────────────────────── */}
-        <header className="w-full pt-12 pb-3 px-6 flex items-center justify-between z-20 relative flex-shrink-0">
-          {/* Greeting */}
-          <div className="flex flex-col leading-snug">
-            <span
-              className="text-[11px] font-semibold tracking-[0.18em] uppercase"
-              style={{ color: 'rgba(26,26,46,0.45)' }}
-            >
-              {currentDate}
-            </span>
-            <span
-              className="text-2xl font-bold tracking-tight mt-0.5"
-              style={{ color: '#1a1a2e' }}
-            >
-              {greeting} 👋
-            </span>
-          </div>
-
-          {/* Avatar + Notif */}
-          <div className="flex items-center gap-3">
-            <button
-              className="glass-pill w-10 h-10 rounded-full flex items-center justify-center relative"
-              style={{ color: 'rgba(26,26,46,0.55)' }}
-            >
-              <Bell size={18} />
-              <span
-                className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
-                style={{ background: '#f5b8d5', border: '1.5px solid white' }}
-              />
-            </button>
-            <div
-              className="glass-pill w-11 h-11 rounded-full flex items-center justify-center font-bold text-base"
-              style={{ color: '#3a7bd5', fontSize: '1.1rem' }}
-            >
-              B
-            </div>
-          </div>
-        </header>
-
         {/* ── Scrollable Main ────────────────────────────────── */}
-        <main className="flex-1 w-full overflow-y-auto pb-36 z-10 flex flex-col no-scrollbar">
+        <main className="flex-1 w-full overflow-y-auto flex flex-col no-scrollbar">
 
-          {/* Section Label */}
+          {/* ── Brand hero ─────────────────────────────────── */}
+          <section className="hero flex-shrink-0">
+            {/* Top bar */}
+            <div className="flex items-center justify-between" style={{ height: 64 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/bri-logo-mark.svg" alt="BRI" className="logo-on-brand" style={{ height: 22, width: 'auto' }} />
+              <div className="flex items-center gap-2">
+                {/* Language switch */}
+                <div
+                  role="radiogroup"
+                  aria-label={t.langSwitch.label}
+                  title={locked ? t.langSwitch.locked : t.langSwitch.label}
+                  className={`lang-switch ${locked ? 'is-locked' : ''}`}
+                >
+                  {(['id', 'en'] as Lang[]).map(code => (
+                    <button
+                      key={code}
+                      role="radio"
+                      aria-checked={lang === code}
+                      disabled={locked}
+                      onClick={() => setLang(code)}
+                      className={lang === code ? 'is-active' : ''}
+                    >
+                      {code.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+                <button className="btn-on-brand" aria-label={t.topbar.notifications}>
+                  <Bell size={18} strokeWidth={1.75} />
+                  <span
+                    className="absolute rounded-full"
+                    style={{ top: 9, right: 10, width: 7, height: 7, background: 'var(--primary-light)' }}
+                  />
+                </button>
+                <div
+                  className="flex items-center justify-center"
+                  style={{ width: 40, height: 40, borderRadius: 'var(--r-md)', background: '#fff', color: 'var(--primary-deep)', font: '700 15px/20px var(--font-sans)' }}
+                  aria-label={t.topbar.profile}
+                >
+                  B
+                </div>
+              </div>
+            </div>
 
+            {/* Greeting */}
+            <div style={{ marginTop: 12 }}>
+              <p className="hero-eyebrow">{currentDate}</p>
+              <h1 className="hero-title" style={{ marginTop: 6 }}>
+                {greeting},<br />
+                <span className="muted">{t.heroQuestion}</span>
+              </h1>
+            </div>
 
-          {/* Voice Agent */}
-          <div className="w-full flex-shrink-0 flex items-center justify-center py-2 px-6">
-            <VoiceAgent onPanelChange={setPanelState} />
-          </div>
+            {/* Voice Agent */}
+            <div className="w-full flex flex-col items-center" style={{ marginTop: 20 }}>
+              <VoiceAgent onPanelChange={setPanelState} />
+            </div>
+          </section>
 
-          {/* Dynamic Panel */}
-          <div className="w-full flex-1 px-6">
+          {/* ── Content sheet ──────────────────────────────── */}
+          <section className="sheet">
             <DynamicPanel state={panelState} />
-          </div>
+          </section>
         </main>
 
-
-
-        {/* ── Bottom Navigation — compact auto-width pill ── */}
-        <div className="absolute bottom-7 left-0 right-0 flex justify-center z-50">
-          <nav
-            className="glass-pill"
-            style={{ 
-              borderRadius: 40, 
-              padding: '8px 8px', 
-              display: 'inline-flex', 
-              gap: 2,
-              background: 'rgba(255, 255, 255, 0.45)',
-              backdropFilter: 'blur(30px) saturate(210%) brightness(1.07)',
-              WebkitBackdropFilter: 'blur(30px) saturate(210%) brightness(1.07)',
-              border: '1.5px solid rgba(255, 255, 255, 0.75)',
-              boxShadow: '0 8px 32px rgba(80,100,160,0.15), inset 0 1.5px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(255,255,255,0.2)'
-            }}
-          >
-            {[
-              { icon: HomeIcon, active: true, label: 'Home' },
-              { icon: Search, active: false, label: 'Cari' },
-              { icon: Bell, active: false, label: 'Notif' },
-              { icon: Settings, active: false, label: 'Setelan' },
-            ].map(({ icon: Icon, active, label }) => (
+        {/* ── Floating Bottom Navigation ─────────────────────── */}
+        <nav className="bottom-nav z-50">
+          {[
+            { icon: HomeIcon, key: 'home', label: t.nav.home },
+            { icon: Search, key: 'search', label: t.nav.search },
+            { icon: Bell, key: 'notif', label: t.nav.notif },
+            { icon: Settings, key: 'settings', label: t.nav.settings },
+          ].map(({ icon: Icon, key, label }) => {
+            const active = isNavActive(key);
+            return (
               <button
-                key={label}
+                key={key}
                 title={label}
+                aria-label={label}
+                aria-current={active ? 'page' : undefined}
                 onClick={() => {
-                  if (label === 'Cari') setPanelState({ type: 'search' });
-                  if (label === 'Home') setPanelState({ type: 'idle' });
+                  if (key === 'search') setPanelState({ type: 'search' });
+                  if (key === 'home') setPanelState({ type: 'idle' });
                 }}
-                className="flex flex-col items-center justify-center transition-all"
-                style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: 30,
-                  background: active && panelState.type !== 'search'
-                    ? 'rgba(255,255,255,0.55)'
-                    : label === 'Cari' && panelState.type === 'search'
-                    ? 'rgba(255,255,255,0.55)'
-                    : 'transparent',
-                  boxShadow: active && panelState.type !== 'search'
-                    ? '0 2px 10px rgba(80,100,160,0.14), inset 0 1px 0 rgba(255,255,255,0.9)'
-                    : label === 'Cari' && panelState.type === 'search'
-                    ? '0 2px 10px rgba(80,100,160,0.14), inset 0 1px 0 rgba(255,255,255,0.9)'
-                    : 'none',
-                  color: (active && panelState.type !== 'search') || (label === 'Cari' && panelState.type === 'search') ? '#3a7bd5' : 'rgba(26,26,46,0.4)',
-                  border: (active && panelState.type !== 'search') || (label === 'Cari' && panelState.type === 'search') ? '1px solid rgba(255,255,255,0.75)' : '1px solid transparent',
-                }}
+                className={`nav-item ${active ? 'is-active' : ''}`}
               >
-                <Icon size={19} strokeWidth={active ? 2.2 : 1.7} />
-                {active && (
-                  <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.05em', marginTop: 1, color: '#3a7bd5' }}>
-                    {label}
-                  </span>
-                )}
+                <Icon size={20} strokeWidth={active ? 2 : 1.75} />
+                <span className="nav-label">{label}</span>
               </button>
-            ))}
-          </nav>
-        </div>
+            );
+          })}
+        </nav>
       </div>
     </div>
   );
