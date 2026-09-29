@@ -45,7 +45,7 @@ Buka SSH lagi (agar grup `docker` aktif), cek dengan `docker ps`.
 ```bash
 git clone https://github.com/erickalwd/bambang-voice-assistant.git app
 cd app
-git checkout feature/bri-redesign-bilingual   # atau main, sesuai branch yang di-push
+git checkout feature/gcp-vm-deploy
 ```
 
 Repo private? Gunakan Personal Access Token GitHub sebagai password saat diminta.
