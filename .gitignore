@@ -11,3 +11,5 @@ debug_*.wav
 # Env
 .env
 .DS_Store
+
+.env.vm
