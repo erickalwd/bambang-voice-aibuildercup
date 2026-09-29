@@ -3,7 +3,8 @@ import asyncio
 import os
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from orchestrator import AudioOrchestrator, emb_client, emb_model
+from orchestrator import AudioOrchestrator
+from embeddings import embed_query
 from rag_manager import SessionLocal, KnowledgeItem
 from sqlalchemy.sql.expression import func
 from dotenv import load_dotenv
@@ -44,8 +45,7 @@ def get_suggestions(lang: str = "id"):
 def search_knowledge(q: str, lang: str = "id"):
     db = SessionLocal()
     try:
-        emb_res = emb_client.embeddings.create(input=q, model=emb_model)
-        query_emb = emb_res.data[0].embedding
+        query_emb = embed_query(q)
         results = db.query(KnowledgeItem).filter(KnowledgeItem.lang == lang).order_by(KnowledgeItem.embedding.cosine_distance(query_emb)).limit(3).all()
         
         items = []

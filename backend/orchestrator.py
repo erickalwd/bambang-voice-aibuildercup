@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 # RAG DB
 from rag_manager import SessionLocal, KnowledgeItem
-from openai import OpenAI
+from embeddings import embed_query
 
 # Google GenAI SDK
 from google import genai
@@ -16,14 +16,6 @@ from google.genai import types
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
-emb_client = OpenAI(
-    api_key=os.getenv("EMBEDDING_API_KEY"),
-    base_url=os.getenv("EMBEDDING_ENDPOINT"),
-    default_headers={"api-key": os.getenv("EMBEDDING_API_KEY")},
-    default_query={"api-version": "2023-05-15"}
-)
-emb_model = os.getenv("EMBEDDING_MODEL")
 
 # Per-language additions to the system prompt and the opening greeting.
 # The base instructions stay in Indonesian; the directive below controls
@@ -261,8 +253,7 @@ JIKA ANDA TIDAK MEMANGGIL TOOL INI, PENGGUNA TIDAK BISA MELIHAT LAYAR DENGAN BEN
                                 query = args.get("query", "")
                                 print(f"Gemini RAG Query: {query}")
                                 try:
-                                    emb_res = emb_client.embeddings.create(input=query, model=emb_model)
-                                    query_emb = emb_res.data[0].embedding
+                                    query_emb = embed_query(query)
                                     db = SessionLocal()
                                     results = db.query(KnowledgeItem).filter(KnowledgeItem.lang == session["lang"]).order_by(KnowledgeItem.embedding.cosine_distance(query_emb)).limit(3).all()
                                     context_text = "\n\n".join([f"{r.title}:\n{r.content}" for r in results])
