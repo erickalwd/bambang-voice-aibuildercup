@@ -268,6 +268,9 @@ export default function VoiceAgent({
             serverGeneratingRef.current = false;
             dropAudioRef.current = false;
             stopPlayback();
+          } else if (data.type === 'error') {
+            const msg = t.voice.limits[data.code as keyof typeof t.voice.limits];
+            if (msg) alert(msg);
           } else if (data.type === 'turn_complete') {
             serverGeneratingRef.current = false;
             dropAudioRef.current = false;

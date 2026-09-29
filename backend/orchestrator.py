@@ -174,28 +174,13 @@ JIKA ANDA TIDAK MEMANGGIL TOOL INI, PENGGUNA TIDAK BISA MELIHAT LAYAR DENGAN BEN
         client_ws = session["client_ws"]
         
         try:
-            import wave
-            wav_file = wave.open(f"debug_{session_id}.wav", "wb")
-            wav_file.setnchannels(1)
-            wav_file.setsampwidth(2)
-            wav_file.setframerate(16000)
-            chunk_count = 0
-
             while session.get("is_active"):
                 data = await client_ws.receive_text()
                 msg = json.loads(data)
-                
+
                 if msg.get("type") == "realtime_input":
                     if session.get("gemini_session"):
                         audio_bytes = base64.b64decode(msg["data"])
-                        
-                        if chunk_count < 20:
-                            wav_file.writeframes(audio_bytes)
-                            chunk_count += 1
-                            if chunk_count == 20:
-                                wav_file.close()
-                                print(f"=== SAVED DEBUG WAV: debug_{session_id}.wav ===")
-                                
                         await session["gemini_session"].send_realtime_input(audio=types.Blob(mime_type="audio/pcm;rate=16000", data=audio_bytes))
                 elif msg.get("type") == "client_text":
                     if session.get("gemini_session"):
@@ -262,8 +247,9 @@ JIKA ANDA TIDAK MEMANGGIL TOOL INI, PENGGUNA TIDAK BISA MELIHAT LAYAR DENGAN BEN
                                     db.close()
                                     if not context_text.strip():
                                         context_text = "Tidak ada hasil."
-                                except Exception as e:
-                                    context_text = "Error saat pencarian DB: " + str(e)
+                                except Exception:
+                                    traceback.print_exc()
+                                    context_text = "Pencarian knowledge base sedang tidak tersedia."
                                     
                                 hint = "\n\n[SANGAT PENTING: Jika konteks di atas berisi langkah-langkah, WAJIB segera panggil tool `set_ui_state` dengan state='faq_steps' dan isi array `data` (title & desc). Jika berisi varian produk, gunakan state='products'. PANGGIL TOOL INI BERSAMAAN DENGAN JAWABAN ANDA!]"
                                 context_text += hint
@@ -314,6 +300,9 @@ JIKA ANDA TIDAK MEMANGGIL TOOL INI, PENGGUNA TIDAK BISA MELIHAT LAYAR DENGAN BEN
             traceback.print_exc()
             print(f"Gemini receive error: {e}")
             pass
+
+    def is_active(self, session_id: str) -> bool:
+        return session_id in self.sessions
 
     async def end_session(self, session_id: str):
         session = self.sessions.pop(session_id, None)

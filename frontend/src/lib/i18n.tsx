@@ -28,6 +28,11 @@ const id = {
     unmuteAria: 'Aktifkan mikrofon',
     transcript: 'Bambang',
     error: 'Gagal mengakses mikrofon atau server.',
+    limits: {
+      busy: 'Bambang sedang melayani banyak pengguna. Silakan coba lagi sebentar lagi.',
+      too_many_sessions: 'Anda sudah membuka percakapan di tab lain. Tutup dulu, lalu coba lagi.',
+      session_timeout: 'Percakapan berakhir karena batas waktu. Ketuk untuk mulai lagi.',
+    },
   },
   fraud: {
     eyebrow: 'Peringatan Keamanan',
@@ -119,6 +124,11 @@ const en: Dict = {
     unmuteAria: 'Unmute microphone',
     transcript: 'Bambang',
     error: 'Unable to access the microphone or server.',
+    limits: {
+      busy: 'Bambang is helping many people right now. Please try again shortly.',
+      too_many_sessions: 'You already have a conversation open in another tab. Close it and try again.',
+      session_timeout: 'The conversation ended because it reached the time limit. Tap to start again.',
+    },
   },
   fraud: {
     eyebrow: 'Security Alert',
