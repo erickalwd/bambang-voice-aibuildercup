@@ -73,6 +73,8 @@ POSTGRES_DB=bri_knowledge
 
 `POSTGRES_HOST`/`POSTGRES_PORT` tidak perlu diubah; compose otomatis mengarahkannya ke container `db`.
 
+`POSTGRES_PASSWORD` **wajib diisi** (tidak boleh kosong), kalau kosong container database menolak jalan.
+
 ## 6. Jalankan
 
 ```bash
@@ -112,4 +114,6 @@ docker compose -f docker-compose.prod.yml down
 - **HTTPS gagal / sertifikat error**: pastikan port 80 & 443 terbuka (firewall HTTP/HTTPS dicentang)
   dan `DOMAIN` di `.env` sesuai IP. Cek `docker compose -f docker-compose.prod.yml logs caddy`.
 - **Mikrofon tidak bisa diakses**: pastikan membuka lewat `https://`, bukan `http://` atau IP langsung.
+- **`dependency failed to start: container ... db-1 is unhealthy`**: `POSTGRES_PASSWORD` di `backend/.env` kosong.
+  Isi password, lalu `docker compose -f docker-compose.prod.yml down -v` dan jalankan `up` lagi.
 - **Pencarian kosong**: jalankan ulang `ingest.py` dan cek log backend.
