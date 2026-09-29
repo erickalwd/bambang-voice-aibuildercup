@@ -241,6 +241,8 @@ JIKA ANDA TIDAK MEMANGGIL TOOL INI, PENGGUNA TIDAK BISA MELIHAT LAYAR DENGAN BEN
                             await client_ws.send_text(json.dumps({"type": "interrupt"}))
                         if response.server_content.turn_complete:
                             print("GEMINI SENT: turn_complete=True")
+                            # Lets the client know no more audio will arrive for this turn.
+                            await client_ws.send_text(json.dumps({"type": "turn_complete"}))
                     
                     if response.tool_call:
                         responses = []

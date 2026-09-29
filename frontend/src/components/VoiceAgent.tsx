@@ -46,6 +46,14 @@ export default function VoiceAgent({
   const vadRef = useRef<any>(null);
   const preSpeechBufferRef = useRef<Float32Array[]>([]);
 
+  // Barge-in: Gemini streams a reply much faster than it plays, so by the time the
+  // user interrupts, the server turn has often finished and never sends `interrupted`.
+  // The client therefore stops playback itself when the user starts talking.
+  const serverGeneratingRef = useRef<boolean>(false); // audio for the current turn still arriving
+  const dropAudioRef = useRef<boolean>(false);        // discard leftovers of an interrupted turn
+  const bargeInTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const BARGE_IN_CONFIRM_MS = 300; // speech must persist this long, so speaker echo doesn't cut Bambang off
+
   const downsampleTo16k = (buffer: Float32Array, currentRate: number): Float32Array => {
     if (currentRate === 16000) return buffer;
     const ratio = currentRate / 16000;
@@ -138,6 +146,37 @@ export default function VoiceAgent({
     }
   };
 
+  const stopPlayback = () => {
+    audioQueueRef.current = [];
+    nextStartTimeRef.current = 0;
+    isPlayingRef.current = false;
+    activeSourcesRef.current.forEach(source => { try { source.stop(); } catch(e){} });
+    activeSourcesRef.current = [];
+    currentSourceNodeRef.current = null;
+    setAgentState('listening');
+  };
+
+  const bargeIn = () => {
+    if (agentStateRef.current !== 'speaking') return;
+    // If Gemini is still sending the old reply, drop the rest until that turn ends.
+    if (serverGeneratingRef.current) dropAudioRef.current = true;
+    stopPlayback();
+  };
+
+  const onUserSpeechStart = () => {
+    userIsSpeakingRef.current = true;
+    if (agentStateRef.current !== 'speaking' || bargeInTimerRef.current) return;
+    bargeInTimerRef.current = setTimeout(() => {
+      bargeInTimerRef.current = null;
+      if (userIsSpeakingRef.current) bargeIn();
+    }, BARGE_IN_CONFIRM_MS);
+  };
+
+  const onUserSpeechStop = () => {
+    userIsSpeakingRef.current = false;
+    if (bargeInTimerRef.current) { clearTimeout(bargeInTimerRef.current); bargeInTimerRef.current = null; }
+  };
+
   const startSession = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -163,9 +202,9 @@ export default function VoiceAgent({
           minSpeechFrames: 4,
           positiveSpeechThreshold: 0.65,
           negativeSpeechThreshold: 0.4,
-          onSpeechStart: () => { userIsSpeakingRef.current = true; },
-          onSpeechEnd: () => { userIsSpeakingRef.current = false; },
-          onVADMisfire: () => { userIsSpeakingRef.current = false; },
+          onSpeechStart: onUserSpeechStart,
+          onSpeechEnd: onUserSpeechStop,
+          onVADMisfire: onUserSpeechStop,
         });
         vadRef.current.start();
       } catch (err) {
@@ -219,18 +258,19 @@ export default function VoiceAgent({
           } else if (data.type === 'bot_text') {
             setBotTranscript(prev => prev ? prev + " " + data.text : data.text);
           } else if (data.type === 'audio') {
+            if (dropAudioRef.current) return;
+            serverGeneratingRef.current = true;
             const pcmFloat32 = base64ToFloat32PCM(data.data);
             audioQueueRef.current.push(pcmFloat32);
             if (!isPlayingRef.current) nextStartTimeRef.current = audioContext.current?.currentTime || 0;
             scheduleAudio();
           } else if (data.type === 'interrupt') {
-            audioQueueRef.current = [];
-            nextStartTimeRef.current = 0;
-            isPlayingRef.current = false;
-            activeSourcesRef.current.forEach(source => { try { source.stop(); } catch(e){} });
-            activeSourcesRef.current = [];
-            currentSourceNodeRef.current = null;
-            setAgentState('listening');
+            serverGeneratingRef.current = false;
+            dropAudioRef.current = false;
+            stopPlayback();
+          } else if (data.type === 'turn_complete') {
+            serverGeneratingRef.current = false;
+            dropAudioRef.current = false;
           }
         } catch (e) { console.error("Error parsing WS message", e); }
       };
@@ -256,6 +296,9 @@ export default function VoiceAgent({
       setAgentState('idle');
       audioQueueRef.current = [];
       isPlayingRef.current = false;
+      serverGeneratingRef.current = false;
+      dropAudioRef.current = false;
+      if (bargeInTimerRef.current) { clearTimeout(bargeInTimerRef.current); bargeInTimerRef.current = null; }
     }
   };
 
