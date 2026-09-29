@@ -57,14 +57,16 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
   }, [lang]);
 
   useEffect(() => {
-    if (state.type === 'search' && suggestions.length === 0) {
-      fetch(apiUrl(`/api/suggestions?lang=${lang}`))
-        .then(res => res.json())
-        .then(data => {
-          if (data.suggestions) setSuggestions(data.suggestions);
-        })
-        .catch(console.error);
-    }
+    if (state.type !== 'search' || suggestions.length > 0) return;
+    // Ignore a response that arrives after the language has changed again.
+    let stale = false;
+    fetch(apiUrl(`/api/suggestions?lang=${lang}`))
+      .then(res => res.json())
+      .then(data => {
+        if (!stale && data.suggestions) setSuggestions(data.suggestions);
+      })
+      .catch(console.error);
+    return () => { stale = true; };
   }, [state.type, lang, suggestions.length]);
 
   const handleSearch = async (query: string) => {
