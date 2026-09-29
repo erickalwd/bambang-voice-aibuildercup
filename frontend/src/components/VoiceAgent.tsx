@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Mic, MicOff, MessageSquareText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useI18n } from '@/lib/i18n';
+import { wsUrl } from '@/lib/api';
 
 type AgentState = 'idle' | 'listening' | 'speaking';
 
@@ -205,7 +206,7 @@ export default function VoiceAgent({
       processor.connect(actx.destination);
       scriptProcessor.current = processor;
 
-      ws.current = new WebSocket(`ws://localhost:8000/ws/voice?lang=${lang}`);
+      ws.current = new WebSocket(wsUrl(`/ws/voice?lang=${lang}`));
       ws.current.onopen = () => { setConnected(true); setAgentState('listening'); };
       ws.current.onmessage = (event) => {
         try {

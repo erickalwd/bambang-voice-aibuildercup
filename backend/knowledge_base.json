@@ -3,150 +3,350 @@
     "id": "prod_1",
     "category": "products",
     "title": "Tabungan BRI BritAma",
-    "content": "Tabungan BRI BritAma adalah produk tabungan yang memberikan beragam kemudahan dalam melakukan transaksi perbankan dengan didukung fasilitas e-banking dan sistem real-time online yang akan memungkinkan nasabah bertransaksi kapanpun dan dimanapun."
+    "content": "Tabungan BRI BritAma adalah produk tabungan yang memberikan beragam kemudahan dalam melakukan transaksi perbankan dengan didukung fasilitas e-banking dan sistem real-time online yang akan memungkinkan nasabah bertransaksi kapanpun dan dimanapun.",
+    "lang": "id"
   },
   {
     "id": "prod_2",
     "category": "products",
     "title": "Simpedes",
-    "content": "Simpedes adalah simpanan masyarakat dalam bentuk tabungan dengan mata uang Rupiah, yang dilayani di KC/KCP/BRI Unit/Kantor Kas/Teras BRI, yang penyetorannya dapat dilakukan setiap saat dan pengambilannya tidak dibatasi baik frekuensi maupun jumlahnya."
+    "content": "Simpedes adalah simpanan masyarakat dalam bentuk tabungan dengan mata uang Rupiah, yang dilayani di KC/KCP/BRI Unit/Kantor Kas/Teras BRI, yang penyetorannya dapat dilakukan setiap saat dan pengambilannya tidak dibatasi baik frekuensi maupun jumlahnya.",
+    "lang": "id"
   },
   {
     "id": "prod_3",
     "category": "products",
     "title": "Kredit Usaha Rakyat (KUR)",
-    "content": "Kredit Usaha Rakyat (KUR) adalah fasilitas pinjaman dari Bank BRI untuk Usaha Mikro, Kecil, dan Menengah (UMKM) yang layak namun belum memiliki agunan yang cukup."
+    "content": "Kredit Usaha Rakyat (KUR) adalah fasilitas pinjaman dari Bank BRI untuk Usaha Mikro, Kecil, dan Menengah (UMKM) yang layak namun belum memiliki agunan yang cukup.",
+    "lang": "id"
   },
   {
     "id": "faq_1",
     "category": "faq",
     "title": "Syarat Buka Rekening",
-    "content": "Syarat pembukaan rekening secara umum adalah identitas diri (KTP untuk WNI, Paspor & KIMS/KITAS/KITAP untuk WNA), NPWP (jika ada), dan setoran awal sesuai jenis tabungan."
+    "content": "Syarat pembukaan rekening secara umum adalah identitas diri (KTP untuk WNI, Paspor & KIMS/KITAS/KITAP untuk WNA), NPWP (jika ada), dan setoran awal sesuai jenis tabungan.",
+    "lang": "id"
   },
   {
     "id": "faq_2",
     "category": "faq",
     "title": "Jam Operasional Cabang",
-    "content": "Jam operasional kantor cabang BRI pada umumnya adalah hari Senin hingga Jumat pukul 08.00 sampai 15.00 waktu setempat, kecuali pada hari libur nasional."
+    "content": "Jam operasional kantor cabang BRI pada umumnya adalah hari Senin hingga Jumat pukul 08.00 sampai 15.00 waktu setempat, kecuali pada hari libur nasional.",
+    "lang": "id"
   },
   {
     "id": "prod_4",
     "category": "products",
     "title": "BRImo",
-    "content": "BRImo adalah financial super app dari Bank BRI yang dirancang untuk memudahkan nasabah melakukan berbagai transaksi keuangan secara digital. Fitur utamanya termasuk buka rekening secara digital, transfer, pembayaran tagihan listrik/PDAM, pembelian pulsa, investasi, dan transaksi QRIS."
+    "content": "BRImo adalah financial super app dari Bank BRI yang dirancang untuk memudahkan nasabah melakukan berbagai transaksi keuangan secara digital. Fitur utamanya termasuk buka rekening secara digital, transfer, pembayaran tagihan listrik/PDAM, pembelian pulsa, investasi, dan transaksi QRIS.",
+    "lang": "id"
   },
   {
     "id": "prod_5",
     "category": "products",
     "title": "BRI Ceria",
-    "content": "BRI Ceria adalah produk pinjaman digital berkonsep cicilan tanpa kartu kredit dari Bank BRI yang ditujukan untuk membiayai transaksi e-commerce, online travel site, atau ride sharing. Proses pengajuan cepat tanpa agunan dengan plafon hingga Rp 50 juta."
+    "content": "BRI Ceria adalah produk pinjaman digital berkonsep cicilan tanpa kartu kredit dari Bank BRI yang ditujukan untuk membiayai transaksi e-commerce, online travel site, atau ride sharing. Proses pengajuan cepat tanpa agunan dengan plafon hingga Rp 50 juta.",
+    "lang": "id"
   },
   {
     "id": "prod_6",
     "category": "products",
     "title": "QRIS BRI",
-    "content": "QRIS BRI adalah standarisasi pembayaran menggunakan kode QR yang memudahkan transaksi pembayaran non-tunai. Dengan QRIS, merchant dapat menerima pembayaran dari berbagai aplikasi dompet digital atau mobile banking dengan praktis dan aman."
+    "content": "QRIS BRI adalah standarisasi pembayaran menggunakan kode QR yang memudahkan transaksi pembayaran non-tunai. Dengan QRIS, merchant dapat menerima pembayaran dari berbagai aplikasi dompet digital atau mobile banking dengan praktis dan aman.",
+    "lang": "id"
   },
   {
     "id": "prod_7",
     "category": "products",
     "title": "Tabungan Haji BRI",
-    "content": "Tabungan Haji BRI adalah produk tabungan untuk mempersiapkan biaya ibadah haji. Bebas biaya administrasi bulanan, gratis asuransi, dan terkoneksi langsung dengan SISKOHAT Kemenag. Setoran awal ringan mulai Rp 50.000."
+    "content": "Tabungan Haji BRI adalah produk tabungan untuk mempersiapkan biaya ibadah haji. Bebas biaya administrasi bulanan, gratis asuransi, dan terkoneksi langsung dengan SISKOHAT Kemenag. Setoran awal ringan mulai Rp 50.000.",
+    "lang": "id"
   },
   {
     "id": "info_1",
     "category": "info",
     "title": "Sejarah dan Profil BRI",
-    "content": "Bank Rakyat Indonesia (BRI) didirikan pada 16 Desember 1895 di Purwokerto, Jawa Tengah, oleh Raden Bei Aria Wirjaatmadja. Awalnya bertujuan membantu masyarakat pedesaan. BRI merupakan salah satu bank tertua dan terbesar di Indonesia yang fokus pada pemberdayaan UMKM."
+    "content": "Bank Rakyat Indonesia (BRI) didirikan pada 16 Desember 1895 di Purwokerto, Jawa Tengah, oleh Raden Bei Aria Wirjaatmadja. Awalnya bertujuan membantu masyarakat pedesaan. BRI merupakan salah satu bank tertua dan terbesar di Indonesia yang fokus pada pemberdayaan UMKM.",
+    "lang": "id"
   },
   {
     "id": "info_2",
     "category": "info",
     "title": "Visi dan Misi BRI",
-    "content": "Visi BRI adalah menjadi The Most Valuable Banking Group di Asia Tenggara dan Champion of Financial Inclusion. Misi BRI meliputi pelayanan terbaik untuk segmen mikro, kecil, dan menengah, pelayanan prima berbasis teknologi, serta memberi manfaat bagi seluruh stakeholders dengan tata kelola yang baik."
+    "content": "Visi BRI adalah menjadi The Most Valuable Banking Group di Asia Tenggara dan Champion of Financial Inclusion. Misi BRI meliputi pelayanan terbaik untuk segmen mikro, kecil, dan menengah, pelayanan prima berbasis teknologi, serta memberi manfaat bagi seluruh stakeholders dengan tata kelola yang baik.",
+    "lang": "id"
   },
   {
     "id": "prod_8",
     "category": "products",
     "title": "Kartu Kredit BRI",
-    "content": "BRI menawarkan berbagai jenis kartu kredit: BRI Easy Card (cashback tarik tunai dan swalayan), BRI Touch (untuk milenial dan e-commerce), BRI Platinum (keluarga mapan dan pengusaha), BRI World Access (traveling internasional), dan BRI Infinite (nasabah Prioritas). Syarat pengajuan umumnya minimal usia 21 tahun dan penghasilan Rp3.000.000/bulan."
+    "content": "BRI menawarkan berbagai jenis kartu kredit: BRI Easy Card (cashback tarik tunai dan swalayan), BRI Touch (untuk milenial dan e-commerce), BRI Platinum (keluarga mapan dan pengusaha), BRI World Access (traveling internasional), dan BRI Infinite (nasabah Prioritas). Syarat pengajuan umumnya minimal usia 21 tahun dan penghasilan Rp3.000.000/bulan.",
+    "lang": "id"
   },
   {
     "id": "prod_9",
     "category": "products",
     "title": "KPR BRI",
-    "content": "KPR BRI menawarkan pembiayaan properti dengan bunga menarik, mulai dari fixed 2,50% untuk 1 tahun pertama. Tenor kredit bisa mencapai hingga 20 tahun dengan DP mulai dari 10%. KPR ini dapat digunakan untuk beli rumah baru, bekas, apartemen, atau take over. Terdapat juga KPR Subsidi FLPP bagi masyarakat berpenghasilan rendah dengan bunga 5%."
+    "content": "KPR BRI menawarkan pembiayaan properti dengan bunga menarik, mulai dari fixed 2,50% untuk 1 tahun pertama. Tenor kredit bisa mencapai hingga 20 tahun dengan DP mulai dari 10%. KPR ini dapat digunakan untuk beli rumah baru, bekas, apartemen, atau take over. Terdapat juga KPR Subsidi FLPP bagi masyarakat berpenghasilan rendah dengan bunga 5%.",
+    "lang": "id"
   },
   {
     "id": "prod_10",
     "category": "products",
     "title": "Asuransi BRI Life",
-    "content": "BRI Life menyediakan asuransi jiwa, kesehatan, dan investasi. Produk unggulannya antara lain: Arunika (perlindungan komprehensif keluarga), BRILife Inspira (asuransi whole life hingga 99 tahun), dan AM KKM Plus (asuransi mikro). Keunggulannya adalah premi terjangkau, fleksibilitas pembayaran, dan jaringan terluas sinergi dengan Bank BRI."
+    "content": "BRI Life menyediakan asuransi jiwa, kesehatan, dan investasi. Produk unggulannya antara lain: Arunika (perlindungan komprehensif keluarga), BRILife Inspira (asuransi whole life hingga 99 tahun), dan AM KKM Plus (asuransi mikro). Keunggulannya adalah premi terjangkau, fleksibilitas pembayaran, dan jaringan terluas sinergi dengan Bank BRI.",
+    "lang": "id"
   },
   {
     "id": "prod_11",
     "category": "products",
     "title": "Agen BRILink",
-    "content": "Agen BRILink adalah layanan perbankan tanpa kantor yang dikelola oleh nasabah BRI. Melalui Agen BRILink, masyarakat bisa melakukan transaksi seperti tarik/setor tunai, transfer antar bank, bayar tagihan (PLN, PDAM, BPJS), hingga pembelian pulsa tanpa harus ke bank. Ini adalah perpanjangan tangan BRI untuk inklusi keuangan."
+    "content": "Agen BRILink adalah layanan perbankan tanpa kantor yang dikelola oleh nasabah BRI. Melalui Agen BRILink, masyarakat bisa melakukan transaksi seperti tarik/setor tunai, transfer antar bank, bayar tagihan (PLN, PDAM, BPJS), hingga pembelian pulsa tanpa harus ke bank. Ini adalah perpanjangan tangan BRI untuk inklusi keuangan.",
+    "lang": "id"
   },
   {
     "id": "faq_brimo_1",
     "category": "faq",
     "title": "Lupa Password BRImo",
-    "content": "Jika Anda lupa password BRImo, buka aplikasi BRImo, klik \"Lupa Password\" di halaman login. Masukkan User ID dan Email terdaftar. Link reset password akan dikirimkan ke email Anda. Klik link tersebut dan buat password baru yang terdiri dari 8-12 karakter kombinasi huruf kapital, huruf kecil, dan angka."
+    "content": "Jika Anda lupa password BRImo, buka aplikasi BRImo, klik \"Lupa Password\" di halaman login. Masukkan User ID dan Email terdaftar. Link reset password akan dikirimkan ke email Anda. Klik link tersebut dan buat password baru yang terdiri dari 8-12 karakter kombinasi huruf kapital, huruf kecil, dan angka.",
+    "lang": "id"
   },
   {
     "id": "faq_brimo_2",
     "category": "faq",
     "title": "Cara Daftar dan Aktivasi BRImo",
-    "content": "Untuk daftar BRImo bagi yang sudah memiliki rekening BRI: Unduh aplikasi BRImo, pilih \"Belum Punya Akun\", pilih \"Daftar\". Siapkan e-KTP, kartu debit BRI, dan nomor HP aktif. Lakukan perekaman wajah dan masukkan OTP yang dikirim via SMS. Buat User ID dan Password untuk login."
+    "content": "Untuk daftar BRImo bagi yang sudah memiliki rekening BRI: Unduh aplikasi BRImo, pilih \"Belum Punya Akun\", pilih \"Daftar\". Siapkan e-KTP, kartu debit BRI, dan nomor HP aktif. Lakukan perekaman wajah dan masukkan OTP yang dikirim via SMS. Buat User ID dan Password untuk login.",
+    "lang": "id"
   },
   {
     "id": "faq_brimo_3",
     "category": "faq",
     "title": "Lupa PIN BRImo",
-    "content": "Jika Anda lupa PIN BRImo (6 digit angka untuk transaksi), Anda harus login terlebih dahulu ke aplikasi, lalu masuk ke menu Akun -> Keamanan -> Ubah PIN -> Lupa PIN. Anda akan diminta memasukkan password login BRImo, lalu sistem akan mengirimkan link reset PIN ke email terdaftar Anda."
+    "content": "Jika Anda lupa PIN BRImo (6 digit angka untuk transaksi), Anda harus login terlebih dahulu ke aplikasi, lalu masuk ke menu Akun -> Keamanan -> Ubah PIN -> Lupa PIN. Anda akan diminta memasukkan password login BRImo, lalu sistem akan mengirimkan link reset PIN ke email terdaftar Anda.",
+    "lang": "id"
   },
   {
     "id": "faq_brimo_4",
     "category": "faq",
     "title": "Lupa User ID BRImo",
-    "content": "Apabila Anda lupa User ID BRImo, Anda bisa membuka aplikasi BRImo, pilih \"Lupa Username\" di halaman login. Masukkan nomor e-KTP, nomor rekening, dan nomor HP terdaftar. Sistem akan mengirimkan User ID Anda melalui SMS ke nomor HP yang terdaftar."
+    "content": "Apabila Anda lupa User ID BRImo, Anda bisa membuka aplikasi BRImo, pilih \"Lupa Username\" di halaman login. Masukkan nomor e-KTP, nomor rekening, dan nomor HP terdaftar. Sistem akan mengirimkan User ID Anda melalui SMS ke nomor HP yang terdaftar.",
+    "lang": "id"
   },
   {
     "id": "faq_brimo_5",
     "category": "faq",
     "title": "Limit Transfer BRImo",
-    "content": "Limit transfer BRImo berbeda-termgantung jenis kartu. Secara umum untuk Kartu Classic/BritAma: Transfer sesama BRI hingga Rp 100 Juta/hari. Transfer antar bank hingga Rp 25 Juta/hari. Limit ini dapat diubah melalui menu Akun -> Limit Transaksi di dalam aplikasi BRImo."
+    "content": "Limit transfer BRImo berbeda-beda tergantung jenis kartu. Secara umum untuk Kartu Classic/BritAma: Transfer sesama BRI hingga Rp 100 Juta/hari. Transfer antar bank hingga Rp 25 Juta/hari. Limit ini dapat diubah melalui menu Akun -> Limit Transaksi di dalam aplikasi BRImo.",
+    "lang": "id"
   },
   {
     "id": "faq_brimo_6",
     "category": "faq",
     "title": "Cara Tarik Tunai Tanpa Kartu di ATM (Cardless)",
-    "content": "Login ke BRImo, pilih menu \"Tarik Tunai\", pilih nominal yang diinginkan, masukkan PIN BRImo. Anda akan mendapatkan 6 digit Kode Tarik Tunai. Di ATM BRI, tekan tombol kiri bawah, pilih \"Tarik Tunai Tanpa Kartu\", masukkan nomor HP yang terdaftar di BRImo, lalu masukkan 6 digit Kode Tarik Tunai tersebut."
+    "content": "Login ke BRImo, pilih menu \"Tarik Tunai\", pilih nominal yang diinginkan, masukkan PIN BRImo. Anda akan mendapatkan 6 digit Kode Tarik Tunai. Di ATM BRI, tekan tombol kiri bawah, pilih \"Tarik Tunai Tanpa Kartu\", masukkan nomor HP yang terdaftar di BRImo, lalu masukkan 6 digit Kode Tarik Tunai tersebut.",
+    "lang": "id"
   },
   {
     "id": "faq_atm_1",
     "category": "faq",
     "title": "Cara Blokir Kartu ATM Hilang/Tertelan",
-    "content": "Jika kartu ATM Anda hilang atau tertelan, segera blokir melalui BRImo: Login BRImo -> Pilih menu Akun -> Pengelolaan Kartu -> Pilih Kartu -> Nonaktifkan Kartu/Blokir. Anda juga bisa menghubungi Contact BRI di 1500017 atau datang ke unit kerja BRI terdekat dengan membawa KTP dan Buku Tabungan untuk penggantian kartu."
+    "content": "Jika kartu ATM Anda hilang atau tertelan, segera blokir melalui BRImo: Login BRImo -> Pilih menu Akun -> Pengelolaan Kartu -> Pilih Kartu -> Nonaktifkan Kartu/Blokir. Anda juga bisa menghubungi Contact BRI di 1500017 atau datang ke unit kerja BRI terdekat dengan membawa KTP dan Buku Tabungan untuk penggantian kartu.",
+    "lang": "id"
   },
   {
     "id": "faq_kur_1",
     "category": "faq",
     "title": "Detail Syarat dan Bunga KUR BRI",
-    "content": "KUR Mikro BRI menawarkan pinjaman hingga Rp 50 Juta dengan suku bunga 6% efektif per tahun. Syarat pengajuan: individu yang melakukan usaha produktif dan layak minimal 6 bulan, tidak sedang menerima kredit dari perbankan kecuali kredit konsumtif (KPR, KKB, Kartu Kredit), dokumen KTP, KK, dan surat ijin usaha."
+    "content": "KUR Mikro BRI menawarkan pinjaman hingga Rp 50 Juta dengan suku bunga 6% efektif per tahun. Syarat pengajuan: individu yang melakukan usaha produktif dan layak minimal 6 bulan, tidak sedang menerima kredit dari perbankan kecuali kredit konsumtif (KPR, KKB, Kartu Kredit), dokumen KTP, KK, dan surat ijin usaha.",
+    "lang": "id"
   },
   {
     "id": "faq_prod_1",
     "category": "faq",
     "title": "Biaya Admin dan Saldo Mengendap Tabungan BritAma",
-    "content": "Untuk Tabungan BRI BritAma, biaya administrasi bulanan adalah Rp 12.000. Saldo mengendap (saldo minimal yang tidak bisa ditarik) adalah Rp 50.000. Biaya pemeliharaan kartu debit Classic adalah Rp 2.500/bulan, sedangkan Gold Rp 6.500/bulan."
+    "content": "Untuk Tabungan BRI BritAma, biaya administrasi bulanan adalah Rp 12.000. Saldo mengendap (saldo minimal yang tidak bisa ditarik) adalah Rp 50.000. Biaya pemeliharaan kartu debit Classic adalah Rp 2.500/bulan, sedangkan Gold Rp 6.500/bulan.",
+    "lang": "id"
   },
   {
     "id": "faq_brimo_7",
     "category": "faq",
     "title": "Cara Bayar QRIS Pakai BRImo",
-    "content": "Buka aplikasi BRImo dan login. Pada halaman utama bagian bawah tengah, klik ikon QRIS. Arahkan kamera HP Anda ke kode QRIS yang tersedia di merchant. Periksa nama merchant dan masukkan nominal pembayaran jika belum terisi otomatis. Konfirmasi transaksi dan masukkan PIN BRImo Anda."
+    "content": "Buka aplikasi BRImo dan login. Pada halaman utama bagian bawah tengah, klik ikon QRIS. Arahkan kamera HP Anda ke kode QRIS yang tersedia di merchant. Periksa nama merchant dan masukkan nominal pembayaran jika belum terisi otomatis. Konfirmasi transaksi dan masukkan PIN BRImo Anda.",
+    "lang": "id"
+  },
+  {
+    "id": "prod_1_en",
+    "category": "products",
+    "lang": "en",
+    "title": "BRI BritAma Savings",
+    "content": "BRI BritAma Savings is a savings product that makes banking transactions easy, backed by e-banking facilities and a real-time online system that lets customers transact anytime and anywhere."
+  },
+  {
+    "id": "prod_2_en",
+    "category": "products",
+    "lang": "en",
+    "title": "Simpedes",
+    "content": "Simpedes is a Rupiah-denominated community savings account served at BRI branch offices, sub-branches, BRI Units, cash offices and Teras BRI. Deposits can be made at any time, and withdrawals are unlimited in both frequency and amount."
+  },
+  {
+    "id": "prod_3_en",
+    "category": "products",
+    "lang": "en",
+    "title": "People's Business Credit (KUR)",
+    "content": "People's Business Credit (Kredit Usaha Rakyat/KUR) is a loan facility from Bank BRI for viable Micro, Small and Medium Enterprises (MSMEs) that do not yet have sufficient collateral."
+  },
+  {
+    "id": "faq_1_en",
+    "category": "faq",
+    "lang": "en",
+    "title": "Requirements to Open an Account",
+    "content": "The general requirements to open an account are proof of identity (KTP for Indonesian citizens; passport and KIMS/KITAS/KITAP for foreign nationals), a tax ID (NPWP, if available), and an initial deposit according to the type of savings account."
+  },
+  {
+    "id": "faq_2_en",
+    "category": "faq",
+    "lang": "en",
+    "title": "Branch Opening Hours",
+    "content": "BRI branch offices are generally open Monday to Friday from 08:00 to 15:00 local time, except on national holidays."
+  },
+  {
+    "id": "prod_4_en",
+    "category": "products",
+    "lang": "en",
+    "title": "BRImo",
+    "content": "BRImo is Bank BRI's financial super app, designed to make it easy for customers to carry out financial transactions digitally. Key features include digital account opening, transfers, electricity/water (PLN/PDAM) bill payments, mobile credit top-ups, investments, and QRIS transactions."
+  },
+  {
+    "id": "prod_5_en",
+    "category": "products",
+    "lang": "en",
+    "title": "BRI Ceria",
+    "content": "BRI Ceria is Bank BRI's digital loan product offering installments without a credit card, designed to finance e-commerce, online travel, or ride-sharing transactions. The application process is fast and collateral-free, with a limit of up to Rp 50 million."
+  },
+  {
+    "id": "prod_6_en",
+    "category": "products",
+    "lang": "en",
+    "title": "BRI QRIS",
+    "content": "BRI QRIS is the standardized QR code payment system that makes cashless payments easy. With QRIS, merchants can accept payments from various e-wallet and mobile banking apps conveniently and securely."
+  },
+  {
+    "id": "prod_7_en",
+    "category": "products",
+    "lang": "en",
+    "title": "BRI Hajj Savings",
+    "content": "BRI Hajj Savings is a savings product to prepare for the cost of the Hajj pilgrimage. It has no monthly administration fee, includes free insurance, and is directly connected to the Ministry of Religious Affairs' SISKOHAT system. The initial deposit starts from just Rp 50,000."
+  },
+  {
+    "id": "info_1_en",
+    "category": "info",
+    "lang": "en",
+    "title": "BRI History and Profile",
+    "content": "Bank Rakyat Indonesia (BRI) was founded on 16 December 1895 in Purwokerto, Central Java, by Raden Bei Aria Wirjaatmadja, originally to help rural communities. BRI is one of the oldest and largest banks in Indonesia, focusing on empowering MSMEs."
+  },
+  {
+    "id": "info_2_en",
+    "category": "info",
+    "lang": "en",
+    "title": "BRI Vision and Mission",
+    "content": "BRI's vision is to become The Most Valuable Banking Group in Southeast Asia and Champion of Financial Inclusion. Its mission includes providing the best service to the micro, small and medium segments, delivering excellent technology-based service, and benefiting all stakeholders through good corporate governance."
+  },
+  {
+    "id": "prod_8_en",
+    "category": "products",
+    "lang": "en",
+    "title": "BRI Credit Cards",
+    "content": "BRI offers several types of credit cards: BRI Easy Card (cashback on cash withdrawals and supermarket spending), BRI Touch (for millennials and e-commerce), BRI Platinum (for established families and entrepreneurs), BRI World Access (for international travel), and BRI Infinite (for Priority customers). Applicants generally must be at least 21 years old with an income of Rp 3,000,000/month."
+  },
+  {
+    "id": "prod_9_en",
+    "category": "products",
+    "lang": "en",
+    "title": "BRI Home Loan (KPR)",
+    "content": "BRI Home Loan (KPR) offers property financing at attractive rates, starting from a fixed 2.50% for the first year. Loan tenors can reach up to 20 years with a down payment from 10%. It can be used to buy a new or pre-owned house, an apartment, or for a loan take-over. There is also the subsidized FLPP home loan for low-income households at a 5% interest rate."
+  },
+  {
+    "id": "prod_10_en",
+    "category": "products",
+    "lang": "en",
+    "title": "BRI Life Insurance",
+    "content": "BRI Life provides life, health, and investment insurance. Its flagship products include Arunika (comprehensive family protection), BRILife Inspira (whole life insurance up to age 99), and AM KKM Plus (micro insurance). Its advantages are affordable premiums, flexible payments, and the widest network through its synergy with Bank BRI."
+  },
+  {
+    "id": "prod_11_en",
+    "category": "products",
+    "lang": "en",
+    "title": "BRILink Agents",
+    "content": "BRILink Agents provide branchless banking services run by BRI customers. Through a BRILink Agent, people can withdraw and deposit cash, make interbank transfers, pay bills (PLN, PDAM, BPJS), and buy mobile credit without going to the bank. It extends BRI's reach for financial inclusion."
+  },
+  {
+    "id": "faq_brimo_1_en",
+    "category": "faq",
+    "lang": "en",
+    "title": "Forgot BRImo Password",
+    "content": "If you forget your BRImo password, open the BRImo app and tap \"Forgot Password\" on the login page. Enter your User ID and registered email. A password reset link will be sent to your email. Click the link and create a new password of 8-12 characters combining uppercase letters, lowercase letters, and numbers."
+  },
+  {
+    "id": "faq_brimo_2_en",
+    "category": "faq",
+    "lang": "en",
+    "title": "How to Register and Activate BRImo",
+    "content": "To register for BRImo if you already have a BRI account: download the BRImo app, choose \"Don't Have an Account\", then \"Register\". Prepare your e-KTP, BRI debit card, and an active phone number. Complete the face recording and enter the OTP sent via SMS. Create a User ID and Password to log in."
+  },
+  {
+    "id": "faq_brimo_3_en",
+    "category": "faq",
+    "lang": "en",
+    "title": "Forgot BRImo PIN",
+    "content": "If you forget your BRImo PIN (the 6-digit number for transactions), log in to the app first, then go to Account -> Security -> Change PIN -> Forgot PIN. You will be asked to enter your BRImo login password, and the system will send a PIN reset link to your registered email."
+  },
+  {
+    "id": "faq_brimo_4_en",
+    "category": "faq",
+    "lang": "en",
+    "title": "Forgot BRImo User ID",
+    "content": "If you forget your BRImo User ID, open the BRImo app and choose \"Forgot Username\" on the login page. Enter your e-KTP number, account number, and registered phone number. The system will send your User ID via SMS to your registered phone number."
+  },
+  {
+    "id": "faq_brimo_5_en",
+    "category": "faq",
+    "lang": "en",
+    "title": "BRImo Transfer Limits",
+    "content": "BRImo transfer limits vary depending on the card type. In general, for Classic/BritAma cards: transfers between BRI accounts up to Rp 100 million/day, and interbank transfers up to Rp 25 million/day. These limits can be changed via Account -> Transaction Limits in the BRImo app."
+  },
+  {
+    "id": "faq_brimo_6_en",
+    "category": "faq",
+    "lang": "en",
+    "title": "How to Withdraw Cash Without a Card at an ATM (Cardless)",
+    "content": "Log in to BRImo, choose \"Cash Withdrawal\", select the amount, and enter your BRImo PIN. You will receive a 6-digit Cash Withdrawal Code. At a BRI ATM, press the bottom-left button, choose \"Cardless Cash Withdrawal\", enter the phone number registered in BRImo, then enter the 6-digit Cash Withdrawal Code."
+  },
+  {
+    "id": "faq_atm_1_en",
+    "category": "faq",
+    "lang": "en",
+    "title": "How to Block a Lost or Swallowed ATM Card",
+    "content": "If your ATM card is lost or swallowed, block it immediately via BRImo: log in to BRImo -> Account -> Card Management -> select the card -> Deactivate/Block Card. You can also call Contact BRI at 1500017 or visit the nearest BRI office with your KTP and savings book to get a replacement card."
+  },
+  {
+    "id": "faq_kur_1_en",
+    "category": "faq",
+    "lang": "en",
+    "title": "BRI KUR Requirements and Interest Rate",
+    "content": "BRI Micro KUR offers loans of up to Rp 50 million at an effective interest rate of 6% per year. Requirements: individuals running a productive and viable business for at least 6 months, not currently receiving bank credit other than consumer credit (home loans, vehicle loans, credit cards), plus KTP, family card (KK), and business permit documents."
+  },
+  {
+    "id": "faq_prod_1_en",
+    "category": "faq",
+    "lang": "en",
+    "title": "BritAma Savings Admin Fee and Minimum Balance",
+    "content": "For BRI BritAma Savings, the monthly administration fee is Rp 12,000. The minimum balance (which cannot be withdrawn) is Rp 50,000. The Classic debit card maintenance fee is Rp 2,500/month, while Gold is Rp 6,500/month."
+  },
+  {
+    "id": "faq_brimo_7_en",
+    "category": "faq",
+    "lang": "en",
+    "title": "How to Pay with QRIS Using BRImo",
+    "content": "Open the BRImo app and log in. On the home screen, tap the QRIS icon at the bottom center. Point your phone camera at the merchant's QRIS code. Check the merchant name and enter the payment amount if it is not filled in automatically. Confirm the transaction and enter your BRImo PIN."
   }
 ]

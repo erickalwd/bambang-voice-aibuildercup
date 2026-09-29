@@ -24,6 +24,7 @@ class KnowledgeItem(Base):
     
     id = Column(String, primary_key=True, index=True)
     category = Column(String, index=True)
+    lang = Column(String, index=True, default="id", server_default="id")
     title = Column(String)
     content = Column(Text)
     # text-embedding-3-small uses 1536 dimensions
@@ -37,6 +38,10 @@ def init_db():
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         conn.commit()
     Base.metadata.create_all(bind=engine)
+    # Databases created before the lang column existed need it added in place.
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE knowledge_base ADD COLUMN IF NOT EXISTS lang VARCHAR DEFAULT 'id'"))
+        conn.commit()
     print("Database initialized.")
 
 def get_db():

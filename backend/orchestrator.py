@@ -264,7 +264,7 @@ JIKA ANDA TIDAK MEMANGGIL TOOL INI, PENGGUNA TIDAK BISA MELIHAT LAYAR DENGAN BEN
                                     emb_res = emb_client.embeddings.create(input=query, model=emb_model)
                                     query_emb = emb_res.data[0].embedding
                                     db = SessionLocal()
-                                    results = db.query(KnowledgeItem).order_by(KnowledgeItem.embedding.cosine_distance(query_emb)).limit(3).all()
+                                    results = db.query(KnowledgeItem).filter(KnowledgeItem.lang == session["lang"]).order_by(KnowledgeItem.embedding.cosine_distance(query_emb)).limit(3).all()
                                     context_text = "\n\n".join([f"{r.title}:\n{r.content}" for r in results])
                                     db.close()
                                     if not context_text.strip():

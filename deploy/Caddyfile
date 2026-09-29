@@ -1,0 +1,11 @@
+{$DOMAIN} {
+	@backend path /api/* /ws/* /health
+	handle @backend {
+		reverse_proxy backend:8000
+	}
+
+	handle {
+		encode gzip
+		reverse_proxy frontend:3000
+	}
+}

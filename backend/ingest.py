@@ -60,6 +60,7 @@ def ingest_data():
         db_item = KnowledgeItem(
             id=item["id"],
             category=item["category"],
+            lang=item.get("lang", "id"),
             title=item["title"],
             content=item["content"],
             embedding=emb

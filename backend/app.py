@@ -29,11 +29,11 @@ def health_check():
 
 
 @app.get("/api/suggestions")
-def get_suggestions():
+def get_suggestions(lang: str = "id"):
     db = SessionLocal()
     try:
         # Get 5 random knowledge items
-        results = db.query(KnowledgeItem).order_by(func.random()).limit(5).all()
+        results = db.query(KnowledgeItem).filter(KnowledgeItem.lang == lang).order_by(func.random()).limit(5).all()
         return {"suggestions": [r.title for r in results]}
     except Exception as e:
         return {"error": str(e)}
@@ -41,12 +41,12 @@ def get_suggestions():
         db.close()
 
 @app.get("/api/search")
-def search_knowledge(q: str):
+def search_knowledge(q: str, lang: str = "id"):
     db = SessionLocal()
     try:
         emb_res = emb_client.embeddings.create(input=q, model=emb_model)
         query_emb = emb_res.data[0].embedding
-        results = db.query(KnowledgeItem).order_by(KnowledgeItem.embedding.cosine_distance(query_emb)).limit(3).all()
+        results = db.query(KnowledgeItem).filter(KnowledgeItem.lang == lang).order_by(KnowledgeItem.embedding.cosine_distance(query_emb)).limit(3).all()
         
         items = []
         for r in results:

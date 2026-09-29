@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { CreditCard, Building2, Send, Wallet, Zap, ArrowRight, ArrowUpRight, CheckCircle2, Sparkles, Search, ShieldAlert, Mic, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useI18n } from '@/lib/i18n';
+import { apiUrl } from '@/lib/api';
 
 interface DynamicPanelProps {
   state: {
@@ -39,7 +40,7 @@ function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
 }
 
 export default function DynamicPanel({ state }: DynamicPanelProps) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [formData, setFormData] = useState({ name: '', phone: '', email: '' });
   const [submitted, setSubmitted] = useState(false);
 
@@ -49,16 +50,22 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
 
+  // Knowledge is stored per language, so drop anything fetched for the other one.
+  useEffect(() => {
+    setSuggestions([]);
+    setSearchResults(null);
+  }, [lang]);
+
   useEffect(() => {
     if (state.type === 'search' && suggestions.length === 0) {
-      fetch('http://localhost:8000/api/suggestions')
+      fetch(apiUrl(`/api/suggestions?lang=${lang}`))
         .then(res => res.json())
         .then(data => {
           if (data.suggestions) setSuggestions(data.suggestions);
         })
         .catch(console.error);
     }
-  }, [state.type]);
+  }, [state.type, lang, suggestions.length]);
 
   const handleSearch = async (query: string) => {
     if (!query.trim()) return;
@@ -66,7 +73,7 @@ export default function DynamicPanel({ state }: DynamicPanelProps) {
     setIsSearching(true);
     setSearchResults(null);
     try {
-      const res = await fetch(`http://localhost:8000/api/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(apiUrl(`/api/search?q=${encodeURIComponent(query)}&lang=${lang}`));
       const data = await res.json();
       if (data.results) {
         setSearchResults(data.results);
