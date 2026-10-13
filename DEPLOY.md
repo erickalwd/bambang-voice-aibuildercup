@@ -1,36 +1,36 @@
-# Deploy ke Google Cloud VM
+# Deploying to a Google Cloud VM
 
-Arsitektur: satu VM Compute Engine menjalankan 4 container via Docker Compose.
+Architecture: a single Compute Engine VM runs 4 containers via Docker Compose.
 
 ```
 Browser ──HTTPS──> Caddy (:443) ──┬── /api/*, /ws/*, /health ──> backend  (FastAPI :8000) ──> db (pgvector)
-                                  └── selain itu ─────────────> frontend (Next.js :3000)
+                                  └── everything else ────────> frontend (Next.js :3000)
 ```
 
-Caddy otomatis mengurus sertifikat HTTPS (Let's Encrypt). HTTPS wajib karena browser
-hanya mengizinkan akses mikrofon di origin yang aman.
+Caddy handles the HTTPS certificate automatically (Let's Encrypt). HTTPS is required because
+browsers only allow microphone access on secure origins.
 
-## 1. Reservasi IP statis
+## 1. Reserve a static IP
 
 Console → **VPC network → IP addresses → Reserve external static IP address**
 - Name: `bri-voice-ip`, Region: `asia-southeast2` (Jakarta)
 
-Catat IP-nya, misalnya `34.101.12.34`. Domain gratis kita jadi `34-101-12-34.sslip.io`
-(ganti titik dengan tanda strip).
+Note the IP, for example `34.101.12.34`. Our free domain becomes `34-101-12-34.sslip.io`
+(replace the dots with dashes).
 
-## 2. Buat VM
+## 2. Create the VM
 
 Console → **Compute Engine → VM instances → Create instance**
 - Name: `bri-voice`
-- Region: `asia-southeast2`, Zone: bebas
+- Region: `asia-southeast2`, Zone: any
 - Machine type: **e2-medium** (2 vCPU, 4 GB)
-- Boot disk: **Ubuntu 24.04 LTS**, ukuran **30 GB**
-- Networking → External IPv4: pilih `bri-voice-ip`
-- Firewall: centang **Allow HTTP traffic** dan **Allow HTTPS traffic**
+- Boot disk: **Ubuntu 24.04 LTS**, size **30 GB**
+- Networking → External IPv4: select `bri-voice-ip`
+- Firewall: tick **Allow HTTP traffic** and **Allow HTTPS traffic**
 
-## 3. Install Docker di VM
+## 3. Install Docker on the VM
 
-Klik tombol **SSH** di daftar VM, lalu:
+Click the **SSH** button in the VM list, then:
 
 ```bash
 curl -fsSL https://get.docker.com | sudo sh
@@ -38,9 +38,9 @@ sudo usermod -aG docker $USER
 exit
 ```
 
-Buka SSH lagi (agar grup `docker` aktif), cek dengan `docker ps`.
+Open SSH again (so the `docker` group takes effect) and check with `docker ps`.
 
-## 4. Ambil kode
+## 4. Get the code
 
 ```bash
 git clone https://github.com/erickalwd/bambang-voice-assistant.git app
@@ -48,72 +48,72 @@ cd app
 git checkout feature/gcp-vm-deploy
 ```
 
-Repo private? Gunakan Personal Access Token GitHub sebagai password saat diminta.
+Private repo? Use a GitHub Personal Access Token as the password when prompted.
 
-## 5. Isi environment
+## 5. Set the environment
 
 ```bash
-# Domain untuk Caddy (ganti dengan IP Anda)
+# Domain for Caddy (replace with your IP)
 echo "DOMAIN=34-101-12-34.sslip.io" > .env
 
-# Konfigurasi backend
+# Backend configuration
 cp backend/.env.example backend/.env
 nano backend/.env
 ```
 
-Isi `backend/.env` (embedding juga memakai Gemini, jadi cukup satu API key):
+Fill in `backend/.env` (embeddings also use Gemini, so a single API key is enough):
 
 ```
 GEMINI_API_KEY=...
 
 POSTGRES_USER=bri_admin
-POSTGRES_PASSWORD=<ganti-dengan-password-kuat>
+POSTGRES_PASSWORD=<replace-with-a-strong-password>
 POSTGRES_DB=bri_knowledge
 ```
 
-`POSTGRES_HOST`/`POSTGRES_PORT` tidak perlu diubah; compose otomatis mengarahkannya ke container `db`.
+`POSTGRES_HOST`/`POSTGRES_PORT` do not need to change; compose points them at the `db` container automatically.
 
-`POSTGRES_PASSWORD` **wajib diisi** (tidak boleh kosong), kalau kosong container database menolak jalan.
+`POSTGRES_PASSWORD` **must be set** (it cannot be empty); if it is empty, the database container refuses to start.
 
-## 6. Jalankan
+## 6. Run
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-Build pertama makan waktu ~5 menit. Lalu isi knowledge base (sekali saja):
+The first build takes about 5 minutes. Then load the knowledge base (once only):
 
 ```bash
 docker compose -f docker-compose.prod.yml exec backend python ingest.py
 ```
 
-Buka `https://34-101-12-34.sslip.io`.
+Open `https://34-101-12-34.sslip.io`.
 
-## Perintah sehari-hari
+## Everyday commands
 
 ```bash
-# Lihat log
+# View logs
 docker compose -f docker-compose.prod.yml logs -f backend
 
-# Update setelah push kode baru
+# Update after pushing new code
 git pull
 docker compose -f docker-compose.prod.yml up -d --build
 
-# Matikan semua container
+# Stop all containers
 docker compose -f docker-compose.prod.yml down
 ```
 
-## Tips biaya (free trial)
+## Cost tips (free trial)
 
-- Pasang **budget alert** di Billing → Budgets & alerts (misalnya $50).
-- Saat tidak dipakai, **Stop** VM dari console. Yang tetap ditagih hanya disk dan IP statis (sangat kecil).
-- Setelah VM di-start lagi, container otomatis jalan kembali (`restart: unless-stopped`).
+- Set up a **budget alert** under Billing → Budgets & alerts (for example $50).
+- When not in use, **Stop** the VM from the console. Only the disk and the static IP are still billed (very little).
+- After the VM is started again, the containers come back up automatically (`restart: unless-stopped`).
 
 ## Troubleshooting
 
-- **HTTPS gagal / sertifikat error**: pastikan port 80 & 443 terbuka (firewall HTTP/HTTPS dicentang)
-  dan `DOMAIN` di `.env` sesuai IP. Cek `docker compose -f docker-compose.prod.yml logs caddy`.
-- **Mikrofon tidak bisa diakses**: pastikan membuka lewat `https://`, bukan `http://` atau IP langsung.
-- **`dependency failed to start: container ... db-1 is unhealthy`**: `POSTGRES_PASSWORD` di `backend/.env` kosong.
-  Isi password, lalu `docker compose -f docker-compose.prod.yml down -v` dan jalankan `up` lagi.
-- **Pencarian kosong**: jalankan ulang `ingest.py` dan cek log backend.
+- **HTTPS fails / certificate error**: make sure ports 80 & 443 are open (HTTP/HTTPS firewall boxes ticked)
+  and `DOMAIN` in `.env` matches the IP. Check `docker compose -f docker-compose.prod.yml logs caddy`.
+- **Microphone cannot be accessed**: make sure you open the site via `https://`, not `http://` or the bare IP.
+- **`dependency failed to start: container ... db-1 is unhealthy`**: `POSTGRES_PASSWORD` in `backend/.env` is empty.
+  Set a password, then run `docker compose -f docker-compose.prod.yml down -v` and `up` again.
+- **Search returns nothing**: re-run `ingest.py` and check the backend logs.

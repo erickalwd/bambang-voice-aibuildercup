@@ -1,14 +1,14 @@
 # Bambang - AI Voice Assistant for BRImo
 
-Bambang adalah asisten virtual berbasis *Artificial Intelligence* (AI) yang terintegrasi untuk memberikan pengalaman layanan perbankan yang interaktif, responsif, dan dinamis pada ekosistem **BRImo**. 
+Bambang is an Artificial Intelligence (AI) virtual assistant built to deliver an interactive, responsive, and dynamic banking service experience within the **BRImo** ecosystem.
 
-Proyek ini menggabungkan interaksi suara waktu-nyata (*real-time voice streaming*), antarmuka dinamis (*dynamic UI state*), dan pencarian semantik (*semantic search*) dengan dukungan sistem *Retrieval-Augmented Generation* (RAG) untuk memberikan informasi finansial secara presisi dari basis pengetahuan (*Knowledge Base*) Bank BRI.
+The project combines real-time voice streaming, a dynamic UI state, and semantic search, backed by a Retrieval-Augmented Generation (RAG) system that provides precise financial information from Bank BRI's knowledge base.
 
 ---
 
-## 🏗️ Arsitektur Sistem
+## 🏗️ System Architecture
 
-Bambang dibangun menggunakan pendekatan pemrosesan suara secara langsung menggunakan API *Gemini Multimodal Live* yang diorkestrasikan oleh *backend* FastAPI, serta React di *frontend* untuk menangkap dan merender perubahan UI secara seketika (*event-driven*).
+Bambang processes voice directly through the *Gemini Multimodal Live* API, orchestrated by a FastAPI backend, with React on the frontend capturing and rendering UI changes instantly (event-driven).
 
 ```mermaid
 sequenceDiagram
@@ -20,34 +20,34 @@ sequenceDiagram
     participant Azure OpenAI (Embeddings)
 
     %% Semantic Search Flow
-    User->>Frontend (React/Next.js): Klik "Cari" dan ketik query
+    User->>Frontend (React/Next.js): Tap "Search" and type a query
     Frontend (React/Next.js)->>Backend (FastAPI): GET /api/search?q="..."
     Backend (FastAPI)->>Azure OpenAI (Embeddings): Create Embedding Vector
     Azure OpenAI (Embeddings)-->>Backend (FastAPI): Vector Data
     Backend (FastAPI)->>Database (PostgreSQL + pgvector): Vector Similarity Search (Cosine Distance)
-    Database (PostgreSQL + pgvector)-->>Backend (FastAPI): Dokumen Relevan
-    Backend (FastAPI)-->>Frontend (React/Next.js): Hasil Pencarian (JSON)
-    Frontend (React/Next.js)-->>User: Render Hasil di Dynamic Panel
+    Database (PostgreSQL + pgvector)-->>Backend (FastAPI): Relevant documents
+    Backend (FastAPI)-->>Frontend (React/Next.js): Search results (JSON)
+    Frontend (React/Next.js)-->>User: Render results in the Dynamic Panel
 
     %% Voice Interaction Flow
-    User->>Frontend (React/Next.js): Berbicara melalui Mic
+    User->>Frontend (React/Next.js): Speaks into the mic
     Frontend (React/Next.js)->>Backend (FastAPI): Stream Audio via WebSocket
-    Backend (FastAPI)->>Backend (FastAPI): Deteksi VAD (Voice Activity Detection)
-    Backend (FastAPI)->>Azure OpenAI (Embeddings): Buat Embedding Transkrip (untuk RAG)
-    Backend (FastAPI)->>Database (PostgreSQL + pgvector): Tarik Konteks Knowledge Base
-    Backend (FastAPI)->>Gemini Live API: Kirim Audio + RAG Context + Tool Definitions
-    Gemini Live API-->>Backend (FastAPI): Respons Audio + Function Call (set_ui_state)
-    Backend (FastAPI)-->>Frontend (React/Next.js): Stream Respons Audio + Pesan WebSocket State UI
-    Frontend (React/Next.js)-->>User: Putar Suara Bambang & Update Dynamic UI Screen
+    Backend (FastAPI)->>Backend (FastAPI): VAD (Voice Activity Detection)
+    Backend (FastAPI)->>Azure OpenAI (Embeddings): Embed the transcript (for RAG)
+    Backend (FastAPI)->>Database (PostgreSQL + pgvector): Fetch knowledge base context
+    Backend (FastAPI)->>Gemini Live API: Send audio + RAG context + tool definitions
+    Gemini Live API-->>Backend (FastAPI): Audio response + function call (set_ui_state)
+    Backend (FastAPI)-->>Frontend (React/Next.js): Stream audio response + UI state WebSocket messages
+    Frontend (React/Next.js)-->>User: Play Bambang's voice & update the dynamic UI screen
 ```
 
-## ✨ Fitur Utama
+## ✨ Key Features
 
-1. **Real-time Voice Conversation**: Berbicara langsung dengan Bambang tanpa hambatan layaknya panggilan telepon, didukung oleh sistem VAD (*Voice Activity Detection*) untuk mendeteksi kapan pengguna selesai bicara.
-2. **Context-Aware RAG (Retrieval-Augmented Generation)**: Bambang tidak menjawab sembarangan. Setiap kueri disuntikkan (*injected*) dengan informasi riil dari *database* BRI sehingga jawaban yang diberikan akurat sesuai panduan operasional.
-3. **Dynamic UI Rendering**: Bambang dapat mengontrol layar *smartphone* Anda. Saat Bambang menjelaskan produk, layar akan menampilkan kartu detail produk. Saat ia menjelaskan FAQ, layar akan menampilkan langkah-langkah panduan.
-4. **Semantic Search Panel**: Pencarian pintar menggunakan *vector database*. Tidak perlu kata kunci sama persis; pengguna dapat mencari dengan bahasa alami (contoh: "atm hilang") dan sistem akan memunculkan "Cara Blokir Kartu ATM".
-5. **Fluid Glassmorphism UI**: Antarmuka modern yang memanjakan mata, mengadopsi elemen *liquid glass* dan warna-warna pastel untuk estetika premium khas perbankan modern.
+1. **Real-time Voice Conversation**: Talk to Bambang directly, as smoothly as a phone call, supported by VAD (Voice Activity Detection) to detect when the user has finished speaking.
+2. **Context-Aware RAG (Retrieval-Augmented Generation)**: Bambang does not answer at random. Every query is injected with real information from BRI's database, so the answers are accurate and follow operational guidelines.
+3. **Dynamic UI Rendering**: Bambang can control your smartphone screen. When Bambang explains a product, the screen shows product detail cards. When it explains an FAQ, the screen shows the step-by-step guide.
+4. **Semantic Search Panel**: Smart search powered by a vector database. No exact keywords needed; users can search in natural language (for example "atm hilang", "lost ATM card") and the system brings up "Cara Blokir Kartu ATM" ("How to Block an ATM Card").
+5. **Fluid Glassmorphism UI**: A modern, easy-on-the-eyes interface that adopts liquid glass elements and pastel colors for the premium look of modern banking.
 
 ---
 
@@ -62,7 +62,7 @@ sequenceDiagram
 
 ### Backend
 - **Framework**: FastAPI, Uvicorn, WebSockets
-- **AI/LLM**: Google Gemini 2.0 Flash (Multimodal Live API) via `google-genai` SDK
+- **AI/LLM**: Google Gemini 2.0 Flash (Multimodal Live API) via the `google-genai` SDK
 - **Embeddings**: Azure OpenAI (`text-embedding-3-small`)
 - **Database ORM**: SQLAlchemy
 
@@ -72,17 +72,17 @@ sequenceDiagram
 
 ---
 
-## 🚀 Instalasi & Persiapan (*Setup*)
+## 🚀 Installation & Setup
 
-### 1. Prasyarat (*Prerequisites*)
-Pastikan sistem Anda telah menginstal:
-- Node.js (Versi 22 direkomendasikan)
-- Python (Versi 3.11 atau lebih baru)
-- PostgreSQL dengan ekstensi `pgvector` aktif.
+### 1. Prerequisites
+Make sure your system has the following installed:
+- Node.js (version 22 recommended)
+- Python (version 3.11 or newer)
+- PostgreSQL with the `pgvector` extension enabled.
 
-### 2. Konfigurasi Backend
+### 2. Backend Configuration
 
-Masuk ke direktori `backend` dan buat *virtual environment*:
+Go to the `backend` directory and create a virtual environment:
 ```bash
 cd backend
 python3 -m venv venv
@@ -90,49 +90,49 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Salin file `.env.example` menjadi `.env` dan isi kredensial berikut:
+Copy `.env.example` to `.env` and fill in the following credentials:
 ```env
-# Database PostgreSQL dengan dukungan Vector
+# PostgreSQL database with vector support
 DATABASE_URL="postgresql://user:password@localhost/dbname"
 
 # Gemini Multimodal Live API
 GEMINI_API_KEY="AIzaSyYourGeminiKey..."
 
-# Azure OpenAI Embeddings (Untuk RAG Semantic Search)
+# Azure OpenAI Embeddings (for RAG semantic search)
 EMBEDDING_PROVIDER="azure"
 EMBEDDING_MODEL="text-embedding-3-small"
 EMBEDDING_API_KEY="YourAzureKey..."
 EMBEDDING_ENDPOINT="https://your-resource.openai.azure.com/openai/deployments/text-embedding-3-small"
 ```
 
-Jalankan *server* FastAPI:
+Start the FastAPI server:
 ```bash
 python -u app.py
 ```
-*Backend* akan berjalan pada `http://localhost:8000`.
+The backend runs at `http://localhost:8000`.
 
-### 3. Konfigurasi Frontend
+### 3. Frontend Configuration
 
-Buka terminal baru, masuk ke direktori `frontend`:
+Open a new terminal and go to the `frontend` directory:
 ```bash
 cd frontend
 nvm use 22
 npm install
 ```
 
-Jalankan server pengembangan (*Development Server*):
+Start the development server:
 ```bash
 npm run dev
 ```
-*Frontend* akan berjalan pada `http://localhost:3000`.
+The frontend runs at `http://localhost:3000`.
 
 ---
 
-## 📖 Cara Penggunaan (*Usage*)
+## 📖 Usage
 
-1. Buka browser dan navigasi ke `http://localhost:3000`.
-2. Anda akan disuguhkan *Dynamic Panel* interaktif.
-3. **Mulai Percakapan Suara**: Tekan tombol bergambar *Microphone* berbentuk Orb di bagian tengah. Berikan izin penggunaan *microphone* jika diminta browser.
-4. Mulai berbicara ("Halo Bambang, apa saja produk tabungan BRI?").
-5. Tunggu sejenak, Bambang akan merespons melalui suara, dan *Dynamic Panel* secara ajaib akan memunculkan informasi visual yang relevan (*Product Cards* / *FAQ Steps*).
-6. **Pencarian Cepat**: Klik menu **Cari** di navigasi bawah untuk mencoba fitur *Semantic Search* dan klik salah satu saran instan.
+1. Open a browser and navigate to `http://localhost:3000`.
+2. You will see the interactive *Dynamic Panel*.
+3. **Start a voice conversation**: Tap the microphone button in the center of the screen. Allow microphone access if the browser asks.
+4. Start talking ("Halo Bambang, apa saja produk tabungan BRI?" / "Hi Bambang, what savings products does BRI offer?").
+5. After a moment, Bambang responds by voice, and the *Dynamic Panel* brings up the relevant visual information (*Product Cards* / *FAQ Steps*).
+6. **Quick search**: Tap **Cari** (Search) in the bottom navigation to try *Semantic Search*, then tap one of the instant suggestions.
