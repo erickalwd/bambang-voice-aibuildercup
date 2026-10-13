@@ -6,41 +6,6 @@ The project combines real-time voice streaming, a dynamic UI state, and semantic
 
 ---
 
-## 🏗️ System Architecture
-
-Bambang processes voice directly through the *Gemini Multimodal Live* API, orchestrated by a FastAPI backend, with React on the frontend capturing and rendering UI changes instantly (event-driven).
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant Frontend (React/Next.js)
-    participant Backend (FastAPI)
-    participant Database (PostgreSQL + pgvector)
-    participant Gemini Live API
-    participant Azure OpenAI (Embeddings)
-
-    %% Semantic Search Flow
-    User->>Frontend (React/Next.js): Tap "Search" and type a query
-    Frontend (React/Next.js)->>Backend (FastAPI): GET /api/search?q="..."
-    Backend (FastAPI)->>Azure OpenAI (Embeddings): Create Embedding Vector
-    Azure OpenAI (Embeddings)-->>Backend (FastAPI): Vector Data
-    Backend (FastAPI)->>Database (PostgreSQL + pgvector): Vector Similarity Search (Cosine Distance)
-    Database (PostgreSQL + pgvector)-->>Backend (FastAPI): Relevant documents
-    Backend (FastAPI)-->>Frontend (React/Next.js): Search results (JSON)
-    Frontend (React/Next.js)-->>User: Render results in the Dynamic Panel
-
-    %% Voice Interaction Flow
-    User->>Frontend (React/Next.js): Speaks into the mic
-    Frontend (React/Next.js)->>Backend (FastAPI): Stream Audio via WebSocket
-    Backend (FastAPI)->>Backend (FastAPI): VAD (Voice Activity Detection)
-    Backend (FastAPI)->>Azure OpenAI (Embeddings): Embed the transcript (for RAG)
-    Backend (FastAPI)->>Database (PostgreSQL + pgvector): Fetch knowledge base context
-    Backend (FastAPI)->>Gemini Live API: Send audio + RAG context + tool definitions
-    Gemini Live API-->>Backend (FastAPI): Audio response + function call (set_ui_state)
-    Backend (FastAPI)-->>Frontend (React/Next.js): Stream audio response + UI state WebSocket messages
-    Frontend (React/Next.js)-->>User: Play Bambang's voice & update the dynamic UI screen
-```
-
 ## ✨ Key Features
 
 1. **Real-time Voice Conversation**: Talk to Bambang directly, as smoothly as a phone call, supported by VAD (Voice Activity Detection) to detect when the user has finished speaking.
