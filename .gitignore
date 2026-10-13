@@ -13,3 +13,9 @@ debug_*.wav
 .DS_Store
 
 .env.vm
+
+# Kept local only (not published)
+video/
+PROPOSAL*.md
+frontend/AGENTS.md
+frontend/CLAUDE.md
