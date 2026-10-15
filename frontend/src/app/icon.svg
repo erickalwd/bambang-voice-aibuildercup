@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Bambang: BRI Nusantara Blue tile with a voice waveform -->
+  <rect width="64" height="64" rx="14" fill="#0857C3"/>
+  <g fill="#FFFFFF"><rect x="13.25" y="25.0" width="5.5" height="14" rx="2.75"/><rect x="21.25" y="17.0" width="5.5" height="30" rx="2.75"/><rect x="29.25" y="11.0" width="5.5" height="42" rx="2.75"/><rect x="37.25" y="19.0" width="5.5" height="26" rx="2.75"/><rect x="45.25" y="24.0" width="5.5" height="16" rx="2.75"/></g>
+</svg>

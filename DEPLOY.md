@@ -43,12 +43,9 @@ Open SSH again (so the `docker` group takes effect) and check with `docker ps`.
 ## 4. Get the code
 
 ```bash
-git clone https://github.com/erickalwd/bambang-voice-assistant.git app
+git clone https://github.com/erickalwd/bambang-voice-aibuildercup.git app
 cd app
-git checkout feature/gcp-vm-deploy
 ```
-
-Private repo? Use a GitHub Personal Access Token as the password when prompted.
 
 ## 5. Set the environment
 
